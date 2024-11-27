@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         String vs = "http://127.0.0.1:5500";
-        String front = "https://lively-sand-03d39a410.5.azurestaticapps.net";
+        String front = "https://thankful-sea-00a591a10.5.azurestaticapps.net";
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
