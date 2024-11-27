@@ -21,11 +21,15 @@ import java.util.List;
 @RequestMapping("/api/articles")
 public class ArticleController {
 
-    @Autowired
     private ArticleService articleService;
 
-    @Autowired
     private UserService userService;
+
+    @Autowired
+    public ArticleController(ArticleService articleService, UserService userService) {
+        this.articleService = articleService;
+        this.userService = userService;
+    }
 
     @PostMapping
     public ResponseEntity<Article> createArticle(
@@ -72,7 +76,6 @@ public class ArticleController {
     }
 
 
-    // TODO: Cambiar a en vez de mandar la imagen mandamos la url de la imagen (madurez REST)
     @GetMapping("/{articleId}/with-image")
     public ResponseEntity<ArticleWithImageDTO> getArticleWithMainImage(
             @PathVariable Long articleId) {

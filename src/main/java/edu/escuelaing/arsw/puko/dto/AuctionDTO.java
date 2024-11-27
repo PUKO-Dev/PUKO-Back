@@ -33,7 +33,7 @@ public class AuctionDTO {
                 auctionCreated.getStatus(),
                 auctionCreated.getTopBids().stream()
                         .map(entry -> new BidDTO(entry.getKey(), entry.getValue()))
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
     @Getter
