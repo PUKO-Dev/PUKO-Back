@@ -2,6 +2,7 @@ package edu.escuelaing.arsw.puko.service;
 
 import edu.escuelaing.arsw.puko.dto.ArticleWithImageDTO;
 import edu.escuelaing.arsw.puko.dto.ArticleWithImagesDTO;
+import edu.escuelaing.arsw.puko.exception.ArticleException;
 import edu.escuelaing.arsw.puko.exception.ArticleNotFoundException;
 import edu.escuelaing.arsw.puko.model.Article;
 import edu.escuelaing.arsw.puko.model.ImageBlob;
@@ -21,14 +22,18 @@ import java.util.UUID;
 @Service
 public class ArticleService {
 
-    @Autowired
     private ArticleRepository articleRepository;
 
-    @Autowired
     private ImageBlobRepository imageRepository;
 
-    @Autowired
     private AzureBlobStorageService blobStorageService;
+
+    @Autowired
+    public ArticleService(ArticleRepository articleRepository, ImageBlobRepository imageRepository, AzureBlobStorageService blobStorageService) {
+        this.articleRepository = articleRepository;
+        this.imageRepository = imageRepository;
+        this.blobStorageService = blobStorageService;
+    }
 
     @Transactional
     public Article createArticle(String name, List<MultipartFile> images, String mainImageFilename, User user, double initialPrice) {
@@ -54,7 +59,7 @@ public class ArticleService {
                 }
 
             } catch (IOException e) {
-                throw new RuntimeException("Error al subir la imagen", e);
+                throw new ArticleException("Error al subir la imagen");
             }
         }
 
@@ -106,9 +111,6 @@ public class ArticleService {
     }
 
     public List<String> getArticleImageUrls(Long articleId) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleNotFoundException(articleId)); // Lanza excepción si no se encuentra
-
         List<ImageBlob> images = imageRepository.findAllByArticleId(articleId); // Obtiene todas las imágenes del artículo
         List<String> imageUrls = new ArrayList<>();
 

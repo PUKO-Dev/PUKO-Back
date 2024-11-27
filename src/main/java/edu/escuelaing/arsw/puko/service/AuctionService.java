@@ -19,11 +19,19 @@ import java.util.*;
 @Service
 public class AuctionService {
 
-    @Autowired
+    private final String AUCTION_STARTED = "AUCTION_STARTED";
+    private final String AUCTION_FINALIZED = "AUCTION_FINALIZED";
+
+
     private AuctionRepository auctionRepository;
 
-    @Autowired
     private AuctionEventPublisher auctionEventPublisher;
+
+    @Autowired
+    public AuctionService(AuctionRepository auctionRepository, AuctionEventPublisher auctionEventPublisher) {
+        this.auctionRepository = auctionRepository;
+        this.auctionEventPublisher = auctionEventPublisher;
+    }
 
     @Transactional
     public Auction save(Auction auction) {
@@ -86,6 +94,7 @@ public class AuctionService {
                 .orElse(Collections.emptyList());
     }
 
+    @Transactional(readOnly = true)
     public Duration getRemainingTime(Long auctionId) {
         return findById(auctionId)
                 .map(Auction::getRemainingTime)
@@ -128,8 +137,8 @@ public class AuctionService {
         boolean started = auction.startAuction();
         if (started) {
             auctionRepository.save(auction);
-            auctionEventPublisher.publishAuctionEvent(auction.getId(), "AUCTION_STARTED", null);
-            auctionEventPublisher.publishAuctionAvailableEvent("AUCTION_STARTED", auction.getId());
+            auctionEventPublisher.publishAuctionEvent(auction.getId(), AUCTION_STARTED, null);
+            auctionEventPublisher.publishAuctionAvailableEvent(AUCTION_STARTED, auction.getId());
         }
         return started;
     }
@@ -141,8 +150,8 @@ public class AuctionService {
         auction.finalizeAuction();
         auction.initializeBidRanking();
         auctionRepository.save(auction);
-        auctionEventPublisher.publishAuctionEvent(auction.getId(), "AUCTION_FINALIZED", auction.getWinner());
-        auctionEventPublisher.publishAuctionAvailableEvent("AUCTION_FINALIZED", auction.getId());
+        auctionEventPublisher.publishAuctionEvent(auction.getId(), AUCTION_FINALIZED, auction.getWinner());
+        auctionEventPublisher.publishAuctionAvailableEvent(AUCTION_FINALIZED, auction.getId());
     }
 
     @Transactional(readOnly = true)
@@ -171,8 +180,6 @@ public class AuctionService {
     @Scheduled(fixedRate = 1000) // Publicar cada segundo
     @Transactional
     public void publishRemainingTimeForActiveAuctions() {
-        LocalDateTime now = LocalDateTime.now();
-
         // Obtener todas las subastas activas
         List<Auction> activeAuctions = auctionRepository.findByStatus(Auction.AuctionStatus.ACTIVE);
 
@@ -182,7 +189,6 @@ public class AuctionService {
             // Obtener el tiempo restante
             Duration remainingTime = auction.getRemainingTime();
 
-            System.out.println("Tiempo en el servicio: "+remainingTime);
             auctionEventPublisher.publishRemainingTimeEvent(auction.getId(), "REMAINING_TIME", remainingTime.toSeconds());
         }
     }
@@ -200,8 +206,8 @@ public class AuctionService {
             if (now.isAfter(auction.getStartTime())) {
                 auction.setStatus(Auction.AuctionStatus.ACTIVE);
                 auctionRepository.save(auction);
-                auctionEventPublisher.publishAuctionEvent(auction.getId(), "AUCTION_STARTED", null);
-                auctionEventPublisher.publishAuctionAvailableEvent("AUCTION_STARTED", auction.getId());
+                auctionEventPublisher.publishAuctionEvent(auction.getId(), AUCTION_STARTED, null);
+                auctionEventPublisher.publishAuctionAvailableEvent(AUCTION_STARTED, auction.getId());
             }
         }
 
@@ -212,8 +218,8 @@ public class AuctionService {
             if (now.isAfter(auction.getStartTime().plus(auction.getDuration()))) {
                 auction.finalizeAuction();
                 auctionRepository.save(auction);
-                auctionEventPublisher.publishAuctionEvent(auction.getId(), "AUCTION_FINALIZED", auction.getWinner());
-                auctionEventPublisher.publishAuctionAvailableEvent("AUCTION_FINALIZED", auction.getId());
+                auctionEventPublisher.publishAuctionEvent(auction.getId(), AUCTION_FINALIZED, auction.getWinner());
+                auctionEventPublisher.publishAuctionAvailableEvent(AUCTION_FINALIZED, auction.getId());
             }
         }
     }
