@@ -29,6 +29,7 @@ jobs:
           SPRING_PASSWORD: ${{ secrets.SPRING_PASSWORD }}
           BLOBSTORAGE_STRING: ${{ secrets.BLOBSTORAGE_STRING }}
           WEBPUBSUB_STRING: ${{ secrets.WEBPUBSUB_STRING }}
+          URL_balancerIP: ${{ secrets.URL_BALANCERIP }}
         run: |
           echo "Configurando variables de entorno para Spring"
           mvn clean install

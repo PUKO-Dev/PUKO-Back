@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     public WebMvcConfigurer corsConfigurer() {
         String vs = "http://127.0.0.1:5500";
         String front = "https://thankful-sea-00a591a10.5.azurestaticapps.net";
-        String balancer = "http://135.233.99.171";
+        String balancer = "${URL_balancerIP}";
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
