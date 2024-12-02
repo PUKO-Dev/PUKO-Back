@@ -125,6 +125,7 @@ public class AuctionController {
         return ResponseEntity.ok().build();
     }
 
+
     @GetMapping("/{auctionId}/top-bids")
     public ResponseEntity<List<BidRankingDTO>> getTopBids(@PathVariable Long auctionId) {
         List<Map.Entry<String, Double>> topBids = auctionService.getTopBids(auctionId);
@@ -262,9 +263,6 @@ public class AuctionController {
         if (!auction.get().getCreator().getId().equals(user.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Usuario no es el creador
         }
-
-        /*Intentar finalizar la subasta
-        auctionService.finalizeAuction(auctionId);*/
 
         return ResponseEntity.ok().build();
     }

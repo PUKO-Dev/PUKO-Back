@@ -2,6 +2,7 @@ package edu.escuelaing.arsw.puko.model;
 
 import edu.escuelaing.arsw.puko.exception.AuctionException;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -101,6 +102,7 @@ public class Auction {
         }
     }
 
+    @Transactional
     public boolean placeBid(User user, double amount) {
         if (status != AuctionStatus.ACTIVE || !registeredUsers.contains(user) || amount < article.getInitialPrice()) {
             return false;

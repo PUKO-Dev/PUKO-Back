@@ -5,6 +5,7 @@ import com.azure.messaging.webpubsub.WebPubSubServiceClientBuilder;
 import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
 import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
 import com.google.gson.JsonObject;
+import edu.escuelaing.arsw.puko.config.Encryption;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +44,15 @@ public class WebPubSubController {
         JsonObject jsonResponse = new JsonObject();
         jsonResponse.addProperty("url", token.getUrl());
 
-        return jsonResponse.toString(); // Devolver el JSON con la URL y el token
+        // Convertir la respuesta a String (JSON) antes de cifrarla
+        String responseString = jsonResponse.toString();
+
+        try {
+            // Cifrar la respuesta con AES utilizando la clase Encryption
+            return Encryption.encrypt(responseString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{ \"error\": \"Encryption fail\" }";
+        }
     }
 }
