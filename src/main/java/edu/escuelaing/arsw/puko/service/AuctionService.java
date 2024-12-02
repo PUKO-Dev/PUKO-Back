@@ -7,7 +7,6 @@ import edu.escuelaing.arsw.puko.exception.AuctionNotFoundException;
 import edu.escuelaing.arsw.puko.model.Auction;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.repository.AuctionRepository;
-import jakarta.persistence.OptimisticLockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,8 @@ import java.util.*;
 @Service
 public class AuctionService {
 
-    private final String AUCTION_STARTED = "AUCTION_STARTED";
-    private final String AUCTION_FINALIZED = "AUCTION_FINALIZED";
+    private static final String AUCTION_STARTED = "AUCTION_STARTED";
+    private static final String AUCTION_FINALIZED = "AUCTION_FINALIZED";
 
 
     private AuctionRepository auctionRepository;

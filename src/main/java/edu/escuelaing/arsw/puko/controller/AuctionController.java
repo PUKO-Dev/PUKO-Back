@@ -264,9 +264,6 @@ public class AuctionController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Usuario no es el creador
         }
 
-        /*Intentar finalizar la subasta
-        auctionService.finalizeAuction(auctionId);*/
-
         return ResponseEntity.ok().build();
     }
 

@@ -49,11 +49,7 @@ public class WebPubSubController {
 
         try {
             // Cifrar la respuesta con AES utilizando la clase Encryption
-            String encryptedResponse = Encryption.encrypt(responseString);
-
-            // Retornar el mensaje cifrado en base64
-            return encryptedResponse;
-
+            return Encryption.encrypt(responseString);
         } catch (Exception e) {
             e.printStackTrace();
             return "{ \"error\": \"Encryption fail\" }";
