@@ -112,7 +112,6 @@ public class Auction {
             if (status != AuctionStatus.ACTIVE || !registeredUsers.contains(user) || amount < article.getInitialPrice()) {
                 return false;
             }
-            System.out.println(status);
             Optional<Bid> highestBid = bids.stream().max(Comparator.comparing(Bid::getAmount));
 
             // Verificar si el usuario tiene fondos suficientes
@@ -157,7 +156,7 @@ public class Auction {
     private List<Map.Entry<String, Double>> getLeaderboard() {
         return bidRanking.entrySet().stream()
                 .sorted(Map.Entry.<String, Double>comparingByValue().reversed()) // Asegúrate de que se ordena correctamente
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -167,7 +166,7 @@ public class Auction {
 
         return getLeaderboard().stream()
                 .limit(10) // Limitar a los 10 primeros
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -226,7 +225,6 @@ public class Auction {
 
                 // Procesar la puja ganadora si existe
                 winningBid.ifPresent(this::processWinningBid);
-                System.out.println("Ranking actualizado aqui: " + getWinner());
             } catch (Exception e) {
                 // En caso de error, revertir el estado
                 status = AuctionStatus.ACTIVE;

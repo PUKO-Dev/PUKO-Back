@@ -27,14 +27,18 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auctions")
 public class AuctionController {
 
-    @Autowired
     private AuctionService auctionService;
 
-    @Autowired
     private UserService userService;
 
-    @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    public AuctionController(AuctionService auctionService, UserService userService, ArticleService articleService) {
+        this.auctionService = auctionService;
+        this.userService = userService;
+        this.articleService = articleService;
+    }
 
     @PostMapping
     public ResponseEntity<AuctionDTO> createAuction(
@@ -63,7 +67,6 @@ public class AuctionController {
                 auctionDTO.getDuration(),
                 auctionDTO.getStartTime()
         );
-        System.out.printf("Auction: %s\n", auction);
 
         Auction auctionCreated = auctionService.save(auction);
 
@@ -144,7 +147,7 @@ public class AuctionController {
                     return null;
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(rankingDTOs);
     }
@@ -222,7 +225,7 @@ public class AuctionController {
 
         // Verificar si el usuario es el creador de la subasta
         Optional<Auction> auction = auctionService.findById(auctionId);
-        if (auction == null) {
+        if (auction.isEmpty()) {
             throw new AuctionNotFoundException(auctionId); // Subasta no encontrada
         }
 
@@ -253,7 +256,7 @@ public class AuctionController {
 
         // Verificar si el usuario es el creador de la subasta
         Optional<Auction> auction = auctionService.findById(auctionId);
-        if (auction == null) {
+        if (auction.isEmpty()) {
             throw new AuctionNotFoundException(auctionId); // Subasta no encontrada
         }
 
@@ -261,8 +264,8 @@ public class AuctionController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Usuario no es el creador
         }
 
-        // Intentar finalizar la subasta
-        //auctionService.finalizeAuction(auctionId);
+        /*Intentar finalizar la subasta
+        auctionService.finalizeAuction(auctionId);*/
 
         return ResponseEntity.ok().build();
     }
