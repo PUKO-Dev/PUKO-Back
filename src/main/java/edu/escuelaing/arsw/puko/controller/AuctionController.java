@@ -122,6 +122,7 @@ public class AuctionController {
         return ResponseEntity.ok().build();
     }
 
+
     @GetMapping("/{auctionId}/top-bids")
     public ResponseEntity<List<BidRankingDTO>> getTopBids(@PathVariable Long auctionId) {
         List<Map.Entry<String, Double>> topBids = auctionService.getTopBids(auctionId);
