@@ -31,6 +31,7 @@ jobs:
           WEBPUBSUB_STRING: ${{ secrets.WEBPUBSUB_STRING }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          URL_balancerIP: ${{ secrets.URL_BALANCERIP }}
         run: |
           echo "Configurando variables de entorno para Spring"
           mvn clean install
