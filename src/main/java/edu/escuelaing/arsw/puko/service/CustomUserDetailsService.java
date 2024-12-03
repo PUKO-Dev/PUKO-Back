@@ -1,6 +1,5 @@
 package edu.escuelaing.arsw.puko.service;
 
-import edu.escuelaing.arsw.puko.config.PasswordEncoderConfig;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

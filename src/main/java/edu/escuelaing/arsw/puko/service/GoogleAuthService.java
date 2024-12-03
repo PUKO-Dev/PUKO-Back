@@ -7,7 +7,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import edu.escuelaing.arsw.puko.config.JWTGenerator;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.repository.UserRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
