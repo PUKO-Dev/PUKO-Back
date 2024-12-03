@@ -112,6 +112,7 @@ class UserTest {
         String username = "testUser";
         String password = "password123";
         String email = "testuser@example.com";
+        User.AuthProvider authProvider = User.AuthProvider.LOCAL;
         double realMoney = 5000.0;
         double temporaryMoney = realMoney;
 
@@ -120,12 +121,14 @@ class UserTest {
         user.setEmail(email);
         user.setRealMoney(realMoney);
         user.setTemporaryMoney(temporaryMoney);
+        user.setAuthProvider(authProvider);
 
         // Obtener el resultado del método toString
         String expected = "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
+                ", authProvider=" + authProvider +
                 ", realMoney=" + realMoney +
                 ", temporaryMoney=" + temporaryMoney +
                 '}';
