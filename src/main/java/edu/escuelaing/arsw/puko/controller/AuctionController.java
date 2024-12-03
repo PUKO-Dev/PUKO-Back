@@ -1,5 +1,7 @@
 package edu.escuelaing.arsw.puko.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.escuelaing.arsw.puko.config.Encryption;
 import edu.escuelaing.arsw.puko.dto.*;
 import edu.escuelaing.arsw.puko.exception.AuctionException;
 import edu.escuelaing.arsw.puko.exception.AuctionNotFoundException;
@@ -96,34 +98,26 @@ public class AuctionController {
     public ResponseEntity<BidRankingDTO> placeBid(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long auctionId,
-            @Valid @RequestBody BidDTO bidDTO) {
-        User user = userService.findByUsername(userDetails.getUsername());
+            @Valid @RequestBody Map<String, String> payload) {
 
+        String encryptedData = payload.get("data");
+        String decryptedData = Encryption.decrypt(encryptedData);
+        if ("Error decrypting data".equals(decryptedData)) {
+            throw new AuctionException("Error descifrando los datos de la puja");
+        }
+
+        BidDTO bidDTO = parseBidDTO(decryptedData);
+        User user = userService.findByUsername(userDetails.getUsername());
         boolean bidPlaced = auctionService.placeBid(auctionId, user, bidDTO.getAmount());
 
         if (!bidPlaced) {
             throw new AuctionException("No se pudo realizar la puja");
         }
 
-        // Obtener el ranking actualizado después de la puja
-        List<Map.Entry<String, Double>> topBids = auctionService.getTopBids(auctionId);
-
-        // Encontrar la posición del usuario que hizo la puja
-        Optional<Map.Entry<String, Double>> userBid = topBids.stream()
-                .filter(entry -> entry.getKey().equals(user.getUsername()))
-                .findFirst();
-
-        if (userBid.isPresent()) {
-            BidRankingDTO rankingDTO = new BidRankingDTO(
-                    user.getId(),
-                    user.getUsername(),
-                    userBid.get().getValue()
-            );
-            return ResponseEntity.ok(rankingDTO);
-        }
-
         return ResponseEntity.ok().build();
     }
+
+
 
 
     @GetMapping("/{auctionId}/top-bids")
@@ -302,6 +296,13 @@ public class AuctionController {
 
         return ResponseEntity.ok(UserDTO.fromUser(winner));
     }
-
+    private BidDTO parseBidDTO(String decryptedData) {
+        // Implementar la lógica para convertir el JSON descifrado en un objeto BidDTO
+        try {
+            return new ObjectMapper().readValue(decryptedData, BidDTO.class);
+        } catch (Exception e) {
+            throw new AuctionException("Error al procesar los datos de la puja");
+        }
+    }
 
 }

@@ -23,6 +23,7 @@ public class AuctionEventPublisher {
     }
 
 
+
     public void publishAuctionEvent(Long auctionId, String eventType, Object eventData) {
         AuctionEvent event = new AuctionEvent(eventType, eventData);
         webPubSubClient.sendToGroup("auction-" + auctionId, serializeEvent(event), WebPubSubContentType.APPLICATION_JSON);
