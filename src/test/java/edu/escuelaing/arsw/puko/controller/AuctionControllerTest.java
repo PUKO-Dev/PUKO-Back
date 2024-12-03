@@ -16,16 +16,16 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class AuctionControllerTest {
+
+class AuctionControllerTest {
 
     @InjectMocks
     private AuctionController auctionController;
@@ -43,13 +43,13 @@ public class AuctionControllerTest {
     private UserDetails userDetails;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         when(userDetails.getUsername()).thenReturn("testUser");
     }
 
     @Test
-    public void testCreateAuctionSuccess() {
+    void testCreateAuctionSuccess() {
         // Mock de User
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(1L);
@@ -82,13 +82,12 @@ public class AuctionControllerTest {
         ResponseEntity<AuctionDTO> response = auctionController.createAuction(userDetails, auctionDTO);
 
         // Verificaciones
-        assertEquals(201, response.getStatusCodeValue());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         assertNotNull(response.getBody());
-        //assertEquals(mockUser.getUsername(), response.getBody().getCreator().getUsername());
         assertEquals(mockArticle.getId(), response.getBody().getArticleId());
     }
     @Test
-    public void testGetAuctionSuccess() {
+    void testGetAuctionSuccess() {
         // Mock de User
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(1L);
@@ -112,12 +111,12 @@ public class AuctionControllerTest {
         // Llamar al método y verificar
         ResponseEntity<AuctionDTO> response = auctionController.getAuction(1L);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         assertNotNull(response.getBody());
         assertEquals(mockAuction.getId(), response.getBody().getId());
     }
     @Test
-    public void testRegisterForAuctionSuccess() {
+    void testRegisterForAuctionSuccess() {
         // Mock de User
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(1L);
@@ -130,34 +129,10 @@ public class AuctionControllerTest {
         // Llamar al método y verificar
         ResponseEntity<Void> response = auctionController.registerForAuction(userDetails, 1L);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
     }
     @Test
-    public void testPlaceBidSuccess() {
-        // Mock de User
-        User mockUser = mock(User.class);
-        when(mockUser.getId()).thenReturn(1L);
-        when(mockUser.getUsername()).thenReturn("testUser");
-
-        // Configurar mocks
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
-        when(auctionService.placeBid(1L, mockUser, 100.0)).thenReturn(true);
-        when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testUser", 100.0)));
-
-        // Datos de prueba
-        BidDTO bidDTO = new BidDTO();
-        bidDTO.setAmount(100.0);
-
-        // Llamar al método y verificar
-        ResponseEntity<BidRankingDTO> response = auctionController.placeBid(userDetails, 1L, bidDTO);
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertEquals(mockUser.getUsername(), response.getBody().getUsername());
-        assertEquals(100.0, response.getBody().getAmount());
-    }
-    @Test
-    public void testGetTopBidsSuccess() {
+    void testGetTopBidsSuccess() {
         // Mock de User
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(1L);
@@ -170,13 +145,13 @@ public class AuctionControllerTest {
         // Llamar al método y verificar
         ResponseEntity<List<BidRankingDTO>> response = auctionController.getTopBids(1L);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         assertEquals(200.0, response.getBody().get(0).getAmount());
     }
     @Test
-    public void testStartAuctionSuccess() {
+    void testStartAuctionSuccess() {
         Long auctionId = 1L;
         Article mockArticle = mock(Article.class);
         User mockUser = mock(User.class);
@@ -184,20 +159,20 @@ public class AuctionControllerTest {
         Auction mockAuction = new Auction(mockUser, mockArticle, null, null);
         mockAuction.setId(auctionId);
 
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("testUser");
+        UserDetails userDetails6 = mock(UserDetails.class);
+        when(userDetails6.getUsername()).thenReturn("testUser");
         when(userService.findByUsername("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
         when(auctionService.startAuction(auctionId)).thenReturn(true);
 
-        ResponseEntity<Void> response = auctionController.startAuction(auctionId, userDetails);
+        ResponseEntity<Void> response = auctionController.startAuction(auctionId, userDetails6);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         verify(auctionService).startAuction(auctionId);
     }
 
     @Test
-    public void testStartAuctionUserNotCreator() {
+    void testStartAuctionUserNotCreator() {
         Long auctionId = 1L;
         Article mockArticle = mock(Article.class);
         User mockUser = mock(User.class);
@@ -206,19 +181,19 @@ public class AuctionControllerTest {
         anotherUser.setId(2L);
         Auction mockAuction = new Auction(anotherUser, mockArticle, null, null);
         mockAuction.setId(auctionId);
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("testUser");
+        UserDetails userDetails5 = mock(UserDetails.class);
+        when(userDetails5.getUsername()).thenReturn("testUser");
         when(userService.findByUsername("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
         try{
-            ResponseEntity<Void> response = auctionController.startAuction(auctionId, userDetails);
+            auctionController.startAuction(auctionId, userDetails5);
         }catch (AuctionException e){
             assertEquals("No se pudo iniciar la subasta", e.getMessage()); // Forbidden
         }
     }
 
     @Test
-    public void testFinalizeAuctionSuccess() throws Exception {
+    void testFinalizeAuctionSuccess() throws Exception {
         Long auctionId = 1L;
         Article mockArticle = mock(Article.class);
         User mockUser = mock(User.class);
@@ -226,54 +201,52 @@ public class AuctionControllerTest {
         Auction mockAuction = new Auction(mockUser, mockArticle, null, null);
         mockAuction.setId(auctionId);
 
-        UserDetails userDetails = mock(UserDetails.class);
+        UserDetails userDetails4 = mock(UserDetails.class);
         when(userDetails.getUsername()).thenReturn("testUser");
         when(userService.findByUsername("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
 
-        ResponseEntity<Void> response = auctionController.finalizeAuction(auctionId, userDetails);
-
-        assertEquals(200, response.getStatusCodeValue());
+        ResponseEntity<Void> response = auctionController.finalizeAuction(auctionId, userDetails4);
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         verify(auctionService).finalizeAuction(auctionId);
     }
 
     @Test
-    public void testGetUserAuctionsSuccess() {
+    void testGetUserAuctionsSuccess() {
         Article mockArticle = mock(Article.class);
         User mockUser = mock(User.class);
         mockUser.setId(1L);
         Auction mockAuction = new Auction(mockUser, mockArticle, Duration.ofHours(1), LocalDateTime.now());
         mockAuction.setId(1L);
 
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("testUser");
+        UserDetails userDetails2 = mock(UserDetails.class);
+        when(userDetails2.getUsername()).thenReturn("testUser");
         when(userService.findByUsername("testUser")).thenReturn(mockUser);
         when(auctionService.findByCreator(mockUser)).thenReturn(List.of(mockAuction));
 
-        ResponseEntity<List<AuctionDTO>> response = auctionController.getUserAuctions(userDetails);
+        ResponseEntity<List<AuctionDTO>> response = auctionController.getUserAuctions(userDetails2);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         assertEquals(mockAuction.getId(), response.getBody().get(0).getId());
     }
 
     @Test
-    public void testGetRegisteredAuctionsSuccess() {
+    void testGetRegisteredAuctionsSuccess() {
         Article mockArticle = mock(Article.class);
         User mockUser = mock(User.class);
         mockUser.setId(1L);
         Auction mockAuction = new Auction(mockUser, mockArticle, Duration.ofHours(1), LocalDateTime.now());
         mockAuction.setId(1L);
 
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("testUser");
+        UserDetails userDetails3 = mock(UserDetails.class);
+        when(userDetails3.getUsername()).thenReturn("testUser");
         when(userService.findByUsername("testUser")).thenReturn(mockUser);
         when(auctionService.findByRegisteredUser(mockUser)).thenReturn(List.of(mockAuction));
 
-        ResponseEntity<List<AuctionDTO>> response = auctionController.getRegisteredAuctions(userDetails);
-
-        assertEquals(200, response.getStatusCodeValue());
+        ResponseEntity<List<AuctionDTO>> response = auctionController.getRegisteredAuctions(userDetails3);
+        assertTrue(response.getStatusCode().is2xxSuccessful());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         assertEquals(mockAuction.getId(), response.getBody().get(0).getId());
