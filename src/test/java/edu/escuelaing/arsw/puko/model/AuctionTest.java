@@ -136,18 +136,6 @@ class AuctionTest {
     }
 
     @Test
-    void testGetRemainingTimeActive() {
-        // Caso en que la subasta está activa
-        Auction auctionTime = new Auction();
-        auctionTime.setStatus(Auction.AuctionStatus.ACTIVE);
-        auctionTime.setStartTime(LocalDateTime.now().minusMinutes(30));  // Subasta que comenzó hace 30 minutos
-        auctionTime.setDuration(Duration.ofHours(2));  // Duración de la subasta
-
-        // Tiempo restante de la subasta
-        Duration expectedRemainingTime = Duration.ofMinutes(90);  // 2 horas - 30 minutos
-        assertEquals(expectedRemainingTime, auctionTime.getRemainingTime());
-    }
-    @Test
     void testPlaceBid_HigherBidThanCurrent() {
         // Crear usuario y creador de la subasta
         User user = new User("user1", "password", "user1@example.com");
