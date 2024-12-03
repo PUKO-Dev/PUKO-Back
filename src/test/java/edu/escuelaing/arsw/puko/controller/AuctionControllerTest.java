@@ -202,7 +202,7 @@ class AuctionControllerTest {
         mockAuction.setId(auctionId);
 
         UserDetails userDetails4 = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userDetails4.getUsername()).thenReturn("testUser");
         when(userService.findByUsername("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
 
