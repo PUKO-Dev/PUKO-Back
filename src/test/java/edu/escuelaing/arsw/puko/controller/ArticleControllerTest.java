@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -191,6 +192,38 @@ class ArticleControllerTest {
         String responseBody = result.getResponse().getContentAsString();
         assertTrue(responseBody.contains("http://example.com/image1.jpg"), "La respuesta debe contener la primera imagen");
         assertTrue(responseBody.contains("http://example.com/image2.jpg"), "La respuesta debe contener la segunda imagen");
+    }
+    @Test
+    @WithMockUser(username = "testuser")
+    void testCreateArticle_ShouldHandleNullImages() throws Exception {
+        User mockUser = new User();
+        mockUser.setUsername("testuser");
+        mockUser.setId(1L);
+
+        Article mockArticle = new Article();
+        mockArticle.setName("Test Article");
+        mockArticle.setId(1L);
+
+        // Simulamos que el servicio encuentra al usuario
+        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
+
+        // Simulamos la creación del artículo sin imágenes
+        Mockito.when(articleService.createArticle(
+                Mockito.anyString(),
+                Mockito.eq(new ArrayList<>()),  // Simulamos que se pasa una lista vacía cuando images es null
+                Mockito.anyString(),
+                Mockito.any(User.class),
+                Mockito.anyDouble()
+        )).thenReturn(mockArticle);
+
+        // Realizar la solicitud simulando que no hay imágenes
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/articles")
+                        .param("name", "Test Article")
+                        .param("mainImageFilename", "mainImage.jpg")
+                        .param("initialPrice", "100.0")
+                        .with(csrf()))  // Incluir CSRF token
+                .andExpect(status().isCreated())
+                .andReturn(); // Verificar si el artículo fue creado con éxito
     }
 
 }
