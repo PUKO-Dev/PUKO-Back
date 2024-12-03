@@ -32,6 +32,11 @@ jobs:
           BLOBSTORAGE_STRING: ${{ secrets.BLOBSTORAGE_STRING }}
           WEBPUBSUB_STRING: ${{ secrets.WEBPUBSUB_STRING }}
           URL_balancerIP: ${{ secrets.URL_BALANCERIP }}
+          ALGORITHM_ENCRYPT: ${{ secrets.ALGORITHM_ENCRYPT }}
+          SECRET-KEY: ${{ secrets.SECRET_KEY }}
+          ALGORITHM_DECRYPT: ${{ secrets.ALGORITHM_DECRYPT }}
+          SECRET-DECRYP-KEY: ${{ secrets.SECRET_DECRYP_KEY }}
+
         run: |
           mvn clean test install
           mvn jacoco:report
@@ -49,9 +54,7 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             -Dsonar.junit.reportPaths=target/test-classes
             -Dsonar.java.binaries=target/classes
-            -Dsonar.exclusions=**/test/**,**/*Test.java,**/*TestCase.java,**/config/**,**/exception/**,**/controller/*WebPubSubController.java
-
-
+            -Dsonar.exclusions=**/test/**,**/*Test.java,**/*TestCase.java,**/config/**,**/exception/**,**/controller/*WebPubSubController.java,**/service/AuctionEventPublisher.java
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:

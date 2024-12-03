@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuctionEventPublisher {
     private final WebPubSubServiceClient webPubSubClient;
-    private final ObjectMapper objectMapper;
-
 
 
     public AuctionEventPublisher(@Value("${webpubsub.connection-string}") String connectionString) {
@@ -21,17 +19,8 @@ public class AuctionEventPublisher {
                 .connectionString(connectionString)
                 .hub("puko")
                 .buildClient();
-        this.objectMapper = new ObjectMapper();
     }
 
-    public AuctionEventPublisher() {
-        this.webPubSubClient = null;
-        this.objectMapper = new ObjectMapper();
-    }
-    public AuctionEventPublisher(WebPubSubServiceClient webPubSubClient, ObjectMapper objectMapper) {
-        this.webPubSubClient = webPubSubClient;
-        this.objectMapper = objectMapper;
-    }
 
 
     public void publishAuctionEvent(Long auctionId, String eventType, Object eventData) {
@@ -49,7 +38,7 @@ public class AuctionEventPublisher {
         webPubSubClient.sendToGroup("auction-" + auctionId + "-time", serializeEvent(event), WebPubSubContentType.APPLICATION_JSON);
     }
 
-    // Método para serializar el evento a JSON
+    // Metodo para serializar el evento a JSON
     private String serializeEvent(AuctionEvent event) {
         try {
             return new ObjectMapper().writeValueAsString(event);
@@ -58,4 +47,3 @@ public class AuctionEventPublisher {
         }
     }
 }
-

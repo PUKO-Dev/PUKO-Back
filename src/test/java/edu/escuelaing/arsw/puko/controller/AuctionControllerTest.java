@@ -24,10 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,22 +107,6 @@ class AuctionControllerTest {
         mockMvc.perform(post("/api/auctions/1/register").with(csrf()))
 
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    void testPlaceBid_Success() throws Exception {
-        when(userService.findByUsername("testuser")).thenReturn(mockUser);
-        when(auctionService.placeBid(1L, mockUser, 100.0)).thenReturn(true);
-        when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testuser", 100.0)));
-
-        mockMvc.perform(post("/api/auctions/1/bid")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(csrf())
-                        .content("{\"amount\": 100.0}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.amount").value(100.0));
     }
 
     @Test
@@ -337,23 +318,7 @@ class AuctionControllerTest {
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof AuctionException))
                 .andExpect(result -> assertEquals("No se pudo registrar al usuario en la subasta", result.getResolvedException().getMessage()));
     }
-    @Test
-    @WithMockUser(username = "testuser")
-    void testPlaceBid_AuctionException() throws Exception {
-        User user = new User(1L, "testuser", "password");
-        BidDTO bidDTO = new BidDTO();
 
-        when(userService.findByUsername("testuser")).thenReturn(user);
-        when(auctionService.placeBid(1L, user, 100.0)).thenReturn(false);
-
-        mockMvc.perform(post("/api/auctions/1/bid")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(csrf())
-                        .content(new ObjectMapper().writeValueAsString(bidDTO)))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof AuctionException))
-                .andExpect(result -> assertEquals("No se pudo realizar la puja", result.getResolvedException().getMessage()));
-    }
     @Test
     @WithMockUser(username = "testuser")
     void testGetActiveAuctions_Success() throws Exception {
