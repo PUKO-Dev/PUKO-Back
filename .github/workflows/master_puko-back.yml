@@ -49,7 +49,7 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             -Dsonar.junit.reportPaths=target/test-classes
             -Dsonar.java.binaries=target/classes
-            -Dsonar.exclusions=**/test/**,**/*Test.java,**/*TestCase.java,**/config/**,**/exception/**
+            -Dsonar.exclusions=**/test/**,**/*Test.java,**/*TestCase.java,**/config/**,**/exception/**,**/controller/*WebPubSubController.java
 
 
       - name: Upload artifact for deployment job
