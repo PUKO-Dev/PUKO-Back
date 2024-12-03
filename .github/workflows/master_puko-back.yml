@@ -25,6 +25,8 @@ jobs:
           distribution: 'microsoft'
 
       - name: Set up SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         uses: sonarsource/sonarcloud-github-action@v2
         with:
           organization: ${{ secrets.SONAR_ORG }}
