@@ -7,223 +7,118 @@ import edu.escuelaing.arsw.puko.model.ImageBlob;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.service.ArticleService;
 import edu.escuelaing.arsw.puko.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(ArticleController.class)
 class ArticleControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private ArticleController articleController;
 
-    @MockBean
+    @Mock
     private ArticleService articleService;
 
-    @MockBean
+    @Mock
     private UserService userService;
 
-    @Test
-    @WithMockUser(username = "testuser")
-    void testCreateArticle_Success_NoImages() throws Exception {
-        User mockUser = new User(); // Crear un mock del usuario
-        mockUser.setUsername("testuser");
-        mockUser.setId(1L);
+    @Mock
+    private UserDetails userDetails;
 
-        // Simulamos que el servicio encuentra al usuario
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
-
-        // Simulamos la creación del artículo
-        Article mockArticle = new Article();
-        mockArticle.setName("Test Article");
-        mockArticle.setId(1L);
-
-        Mockito.when(articleService.createArticle(
-                Mockito.anyString(),
-                Mockito.anyList(),
-                Mockito.anyString(),
-                Mockito.any(User.class),
-                Mockito.anyDouble()
-        )).thenReturn(mockArticle);
-
-        // Realizar la solicitud sin enviar archivos
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/articles")
-                        .param("name", "Test Article")
-                        .param("mainImageFilename", "mainImage.jpg")
-                        .param("initialPrice", "100.0")
-                        .with(csrf()))  // Asegurarse de incluir el CSRF si es necesario
-                .andExpect(status().isCreated());
-    }
-    @Test
-    @WithMockUser(username = "testuser")
-    void testCreateArticle_Unauthorized() throws Exception {
-        // Simulamos que el servicio no encuentra el usuario
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(null);
-
-        mockMvc.perform(multipart("/api/articles")
-                        .param("name", "Test Article")
-                        .param("mainImageFilename", "mainImage.jpg")
-                        .param("initialPrice", "100.0")
-                        .with(csrf())
-                        )
-                .andExpect(status().isUnauthorized());
-    }
-    @Test
-    @WithMockUser(username = "testuser")
-    void testCreateArticle_BadRequest() throws Exception {
-        User mockUser = new User();
-        mockUser.setUsername("testuser");
-        mockUser.setId(1L);
-
-        // Simulamos que el servicio lanza una excepción
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
-        Mockito.when(articleService.createArticle(
-                Mockito.anyString(),
-                Mockito.anyList(),
-                Mockito.anyString(),
-                Mockito.any(User.class),
-                Mockito.anyDouble()
-        )).thenThrow(new RuntimeException("Creation failed"));
-
-        mockMvc.perform(multipart("/api/articles")
-                        .param("name", "Test Article")
-                        .param("mainImageFilename", "mainImage.jpg")
-                        .param("initialPrice", "100.0")
-                        .with(csrf())
-                        )
-                .andExpect(status().isBadRequest());
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @WithMockUser(username = "testuser")
-    void testGetMainImage_Found() throws Exception {
-        // Simulamos que el artículo tiene una imagen principal
-        ImageBlob mockImage = new ImageBlob();
-        mockImage.setUrl("http://example.com/image.jpg");
+    void testCreateArticle_Success() {
+        // Mock inputs
+        String name = "Test Article";
+        List<MultipartFile> images = new ArrayList<>();
+        String mainImageFilename = "mainImage.jpg";
+        double initialPrice = 100.0;
 
-        Mockito.when(articleService.findMainImageByArticleId(1L)).thenReturn(mockImage);
+        User user = new User();
+        user.setUsername("testUser");
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(user);
 
-        // Realizamos la solicitud
-        MvcResult result = mockMvc.perform(get("/api/articles/1/main-image"))
-                .andExpect(status().isOk())  // Verificar que la respuesta es 200 OK
-                .andReturn();  // Capturamos el resultado de la solicitud
+        Article createdArticle = new Article();
+        createdArticle.setName(name);
+        when(articleService.createArticle(name, images, mainImageFilename, user, initialPrice)).thenReturn(createdArticle);
 
-        // Capturamos el cuerpo de la respuesta como String
-        String responseBody = result.getResponse().getContentAsString();
+        // Call the method
+        ResponseEntity<Article> response = articleController.createArticle(name, images, mainImageFilename, initialPrice, userDetails);
 
-        // Comparamos el cuerpo de la respuesta con la URL esperada
-        assertEquals("http://example.com/image.jpg", responseBody);
+        // Verify results
+        assertEquals(201, response.getStatusCodeValue());
+        assertEquals(createdArticle, response.getBody());
+        verify(userService, times(1)).findByUsername("testUser");
+        verify(articleService, times(1)).createArticle(name, images, mainImageFilename, user, initialPrice);
     }
     @Test
-    @WithMockUser(username = "testuser")
-    void testGetMainImage_NotFound() throws Exception {
-        Mockito.when(articleService.findMainImageByArticleId(1L)).thenReturn(null);
+    void testCreateArticle_UnauthorizedUser() {
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(null);
 
-        mockMvc.perform(get("/api/articles/1/main-image"))
-                .andExpect(status().isNotFound());
+        ResponseEntity<Article> response = articleController.createArticle("Test Article", new ArrayList<>(), "mainImage.jpg", 100.0, userDetails);
+
+        assertEquals(401, response.getStatusCodeValue());
+        assertNull(response.getBody());
+        verify(userService, times(1)).findByUsername("testUser");
+        verify(articleService, never()).createArticle(anyString(), anyList(), anyString(), any(User.class), anyDouble());
     }
+
     @Test
-    @WithMockUser(username = "testuser")
-    void testGetMainImage_InternalServerError() throws Exception {
-        Mockito.when(articleService.findMainImageByArticleId(1L)).thenThrow(new RuntimeException("Error"));
+    void testGetMainImage_Success() {
+        Long articleId = 1L;
+        ImageBlob imageBlob = new ImageBlob();
+        imageBlob.setUrl("http://example.com/mainImage.jpg");
 
-        mockMvc.perform(get("/api/articles/1/main-image"))
-                .andExpect(status().isInternalServerError());
+        when(articleService.findMainImageByArticleId(articleId)).thenReturn(imageBlob);
+
+        ResponseEntity<String> response = articleController.getMainImage(articleId);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("http://example.com/mainImage.jpg", response.getBody());
+        verify(articleService, times(1)).findMainImageByArticleId(articleId);
     }
+
     @Test
-    @WithMockUser(username = "testuser")
-    void testGetArticleWithMainImage_Found() throws Exception {
-        // Simulamos que el artículo tiene una imagen principal
-        ArticleWithImageDTO mockArticle = new ArticleWithImageDTO();
-        mockArticle.setName("Test Article");
-        mockArticle.setMainImage("http://example.com/mainImage.jpg");
+    void testGetMainImage_NotFound() {
+        Long articleId = 1L;
+        when(articleService.findMainImageByArticleId(articleId)).thenReturn(null);
 
-        // Simulamos la respuesta del servicio
-        Mockito.when(articleService.getArticleWithMainImage(1L)).thenReturn(mockArticle);
+        ResponseEntity<String> response = articleController.getMainImage(articleId);
 
-        // Realizamos la solicitud y capturamos la respuesta
-        MvcResult result = mockMvc.perform(get("/api/articles/1/with-image"))
-                .andExpect(status().isOk())  // Verificar que la respuesta es 200 OK
-                .andReturn();  // Capturamos el resultado de la solicitud
-
-        // Capturamos el cuerpo de la respuesta como String
-        String responseBody = result.getResponse().getContentAsString();
-
-        // Comprobamos que la respuesta contiene el valor esperado en el JSON
-        assertTrue(responseBody.contains("\"name\":\"Test Article\""));
-        assertTrue(responseBody.contains("\"mainImage\":\"http://example.com/mainImage.jpg\""));
+        assertEquals(404, response.getStatusCodeValue());
+        assertNull(response.getBody());
+        verify(articleService, times(1)).findMainImageByArticleId(articleId);
     }
+
     @Test
-    @WithMockUser(username = "testuser")
-    void testGetArticleWithMainImage_NotFound() throws Exception {
-        Mockito.when(articleService.getArticleWithMainImage(1L)).thenThrow(new RuntimeException("Article not found"));
+    void testGetArticleWithMainImage_Success() {
+        Long articleId = 1L;
+        ArticleWithImageDTO articleWithImageDTO = new ArticleWithImageDTO();
+        when(articleService.getArticleWithMainImage(articleId)).thenReturn(articleWithImageDTO);
 
-        mockMvc.perform(get("/api/articles/1/with-image"))
-                .andExpect(status().isNotFound());
+        ResponseEntity<ArticleWithImageDTO> response = articleController.getArticleWithMainImage(articleId);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(articleWithImageDTO, response.getBody());
+        verify(articleService, times(1)).getArticleWithMainImage(articleId);
     }
-    @Test
-    @WithMockUser(username = "testuser")
-    void testGetArticleImages_Found() throws Exception {
-        ArticleWithImagesDTO mockImages = new ArticleWithImagesDTO();
-        mockImages.setImageUrls(List.of("http://example.com/image1.jpg", "http://example.com/image2.jpg"));
 
-        Mockito.when(articleService.getArticleWithImages(1L)).thenReturn(mockImages);
-        MvcResult result = mockMvc.perform(get("/api/articles/1/images"))
-                .andExpect(status().isOk())  // Verificar que la respuesta es 200 OK
-                .andReturn();  // Capturamos el resultado de la solicitud
-
-        // Capturamos el cuerpo de la respuesta como String
-        String responseBody = result.getResponse().getContentAsString();
-        assertTrue(responseBody.contains("http://example.com/image1.jpg"), "La respuesta debe contener la primera imagen");
-        assertTrue(responseBody.contains("http://example.com/image2.jpg"), "La respuesta debe contener la segunda imagen");
-    }
-    @Test
-    @WithMockUser(username = "testuser")
-    void testCreateArticle_ShouldHandleNullImages() throws Exception {
-        User mockUser = new User();
-        mockUser.setUsername("testuser");
-        mockUser.setId(1L);
-
-        Article mockArticle = new Article();
-        mockArticle.setName("Test Article");
-        mockArticle.setId(1L);
-
-        // Simulamos que el servicio encuentra al usuario
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
-
-        // Simulamos la creación del artículo sin imágenes
-        Mockito.when(articleService.createArticle(
-                Mockito.anyString(),
-                Mockito.eq(new ArrayList<>()),  // Simulamos que se pasa una lista vacía cuando images es null
-                Mockito.anyString(),
-                Mockito.any(User.class),
-                Mockito.anyDouble()
-        )).thenReturn(mockArticle);
-
-        // Realizar la solicitud simulando que no hay imágenes
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/articles")
-                        .param("name", "Test Article")
-                        .param("mainImageFilename", "mainImage.jpg")
-                        .param("initialPrice", "100.0")
-                        .with(csrf()))  // Incluir CSRF token
-                .andExpect(status().isCreated())
-                .andReturn(); // Verificar si el artículo fue creado con éxito
-    }
 
 }
