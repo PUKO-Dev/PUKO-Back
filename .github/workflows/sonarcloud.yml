@@ -1,0 +1,47 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main  # Cambia esto si tu rama principal tiene otro nombre
+  pull_request:
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clona el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Configura Java (si es necesario)
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'microsoft'
+
+      # 3. Genera los reportes de cobertura
+      - name: Build and test with coverage
+        env:
+          SPRING_URL: ${{ secrets.SPRING_URL }}
+          SPRING_NAME: ${{ secrets.SPRING_NAME }}
+          SPRING_PASSWORD: ${{ secrets.SPRING_PASSWORD }}
+          BLOBSTORAGE_STRING: ${{ secrets.BLOBSTORAGE_STRING }}
+          WEBPUBSUB_STRING: ${{ secrets.WEBPUBSUB_STRING }}
+          URL_balancerIP: ${{ secrets.URL_BALANCERIP }}
+        run: |
+          mvn clean verify 
+
+      # 4. Ejecuta el análisis de SonarCloud
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml # Cambia según la ruta de tu reporte
