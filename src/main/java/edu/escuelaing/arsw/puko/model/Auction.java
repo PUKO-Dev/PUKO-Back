@@ -58,6 +58,19 @@ public class Auction {
     @Transient
     private final Object bidLock = new Object(); // objeto específico para sincronización de pujas
 
+    public Auction(Long id, User creator) {
+        this.id = id;
+        this.creator = creator;
+    }
+
+    public Auction(Long id, User creator, Article article, Duration duration, LocalDateTime startTime) {
+        this.id = id;
+        this.creator = creator;
+        this.article = article;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
     public enum AuctionStatus {
         SCHEDULED,
         ACTIVE,

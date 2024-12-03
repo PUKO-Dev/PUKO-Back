@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,12 +35,15 @@ public class ArticleController {
     @PostMapping
     public ResponseEntity<Article> createArticle(
             @RequestParam String name,
-            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
             @RequestParam("mainImageFilename") String mainImageFilename,
             @RequestParam double initialPrice,
             @AuthenticationPrincipal UserDetails userDetails) { // Get user ID from the request
 
         // Fetch user by username
+        if (images == null) {
+            images = new ArrayList<>();
+        }
         User user = userService.findByUsername(userDetails.getUsername());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
