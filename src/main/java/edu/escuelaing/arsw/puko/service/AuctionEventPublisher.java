@@ -14,6 +14,7 @@ public class AuctionEventPublisher {
     private final WebPubSubServiceClient webPubSubClient;
 
 
+
     public AuctionEventPublisher(@Value("${webpubsub.connection-string}") String connectionString) {
         this.webPubSubClient = new WebPubSubServiceClientBuilder()
                 .connectionString(connectionString)
@@ -38,7 +39,7 @@ public class AuctionEventPublisher {
         webPubSubClient.sendToGroup("auction-" + auctionId + "-time", serializeEvent(event), WebPubSubContentType.APPLICATION_JSON);
     }
 
-    // Metodo para serializar el evento a JSON
+    // Método para serializar el evento a JSON
     private String serializeEvent(AuctionEvent event) {
         try {
             return new ObjectMapper().writeValueAsString(event);
@@ -47,3 +48,4 @@ public class AuctionEventPublisher {
         }
     }
 }
+
