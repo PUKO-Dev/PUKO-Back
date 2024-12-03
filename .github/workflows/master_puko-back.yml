@@ -24,16 +24,8 @@ jobs:
           java-version: '21'
           distribution: 'microsoft'
 
-      - name: Set up SonarCloud
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-          organization: ${{ secrets.SONAR_ORG }}
-          token: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Build with Maven and run tests
-        env:
+      - name: Build with Maven
+        env: # Pasar secretos como variables de entorno
           SPRING_URL: ${{ secrets.SPRING_URL }}
           SPRING_NAME: ${{ secrets.SPRING_NAME }}
           SPRING_PASSWORD: ${{ secrets.SPRING_PASSWORD }}
@@ -41,16 +33,17 @@ jobs:
           WEBPUBSUB_STRING: ${{ secrets.WEBPUBSUB_STRING }}
           URL_balancerIP: ${{ secrets.URL_BALANCERIP }}
         run: |
-          echo "Configurando variables de entorno para Spring"
           mvn clean install
-          mvn jacoco:report  # Generar el reporte de cobertura
+          mvn jacoco:report
 
       - name: Run SonarCloud Analysis
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-            -Dsonar.organization=${{ secrets.SONAR_ORG }} \
-            -Dsonar.host.url=https://sonarcloud.io \
+        uses: sonarsource/sonarcloud-github-action@v2
+        with:
+          entryPoint: "/opt/sonar-scanner/bin/sonar-scanner"
+          args: |
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
       - name: Upload artifact for deployment job
@@ -66,7 +59,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write
 
     steps:
       - name: Download artifact from build job
