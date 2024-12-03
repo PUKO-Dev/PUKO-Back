@@ -175,4 +175,107 @@ public class AuctionControllerTest {
         assertEquals(1, response.getBody().size());
         assertEquals(200.0, response.getBody().get(0).getAmount());
     }
+    @Test
+    public void testStartAuctionSuccess() {
+        Long auctionId = 1L;
+        Article mockArticle = mock(Article.class);
+        User mockUser = mock(User.class);
+        mockUser.setId(1L);
+        Auction mockAuction = new Auction(mockUser, mockArticle, null, null);
+        mockAuction.setId(auctionId);
+
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
+        when(auctionService.startAuction(auctionId)).thenReturn(true);
+
+        ResponseEntity<Void> response = auctionController.startAuction(auctionId, userDetails);
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(auctionService).startAuction(auctionId);
+    }
+
+    @Test
+    public void testStartAuctionUserNotCreator() {
+        Long auctionId = 1L;
+        Article mockArticle = mock(Article.class);
+        User mockUser = mock(User.class);
+        mockUser.setId(1L);
+        User anotherUser = mock(User.class);
+        anotherUser.setId(2L);
+        Auction mockAuction = new Auction(anotherUser, mockArticle, null, null);
+        mockAuction.setId(auctionId);
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
+        try{
+            ResponseEntity<Void> response = auctionController.startAuction(auctionId, userDetails);
+        }catch (AuctionException e){
+            assertEquals("No se pudo iniciar la subasta", e.getMessage()); // Forbidden
+        }
+    }
+
+    @Test
+    public void testFinalizeAuctionSuccess() throws Exception {
+        Long auctionId = 1L;
+        Article mockArticle = mock(Article.class);
+        User mockUser = mock(User.class);
+        mockUser.setId(1L);
+        Auction mockAuction = new Auction(mockUser, mockArticle, null, null);
+        mockAuction.setId(auctionId);
+
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
+
+        ResponseEntity<Void> response = auctionController.finalizeAuction(auctionId, userDetails);
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(auctionService).finalizeAuction(auctionId);
+    }
+
+    @Test
+    public void testGetUserAuctionsSuccess() {
+        Article mockArticle = mock(Article.class);
+        User mockUser = mock(User.class);
+        mockUser.setId(1L);
+        Auction mockAuction = new Auction(mockUser, mockArticle, Duration.ofHours(1), LocalDateTime.now());
+        mockAuction.setId(1L);
+
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(auctionService.findByCreator(mockUser)).thenReturn(List.of(mockAuction));
+
+        ResponseEntity<List<AuctionDTO>> response = auctionController.getUserAuctions(userDetails);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals(mockAuction.getId(), response.getBody().get(0).getId());
+    }
+
+    @Test
+    public void testGetRegisteredAuctionsSuccess() {
+        Article mockArticle = mock(Article.class);
+        User mockUser = mock(User.class);
+        mockUser.setId(1L);
+        Auction mockAuction = new Auction(mockUser, mockArticle, Duration.ofHours(1), LocalDateTime.now());
+        mockAuction.setId(1L);
+
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("testUser");
+        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(auctionService.findByRegisteredUser(mockUser)).thenReturn(List.of(mockAuction));
+
+        ResponseEntity<List<AuctionDTO>> response = auctionController.getRegisteredAuctions(userDetails);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals(mockAuction.getId(), response.getBody().get(0).getId());
+    }
 }
