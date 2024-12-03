@@ -32,9 +32,15 @@ jobs:
           WEBPUBSUB_STRING: ${{ secrets.WEBPUBSUB_STRING }}
           URL_balancerIP: ${{ secrets.URL_BALANCERIP }}
         run: |
-          run: mvn clean install
-
-      - name: SonarCloud Analysis
+          mvn clean verify
+      # 4. Ejecuta el análisis de SonarCloud
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN
+        with:
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
