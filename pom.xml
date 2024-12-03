@@ -178,6 +178,13 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<!-- Excluir las clases de prueba -->
+							<excludes>
+								<exclude>**/test/**</exclude>          <!-- Excluir cualquier clase en directorios de test -->
+								<exclude>**/*Test.class</exclude>      <!-- Excluir clases que terminan con 'Test' -->
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
