@@ -1,12 +1,14 @@
 package edu.escuelaing.arsw.puko.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ArticleWithImagesDTO {
     private Long id;
     private String name;

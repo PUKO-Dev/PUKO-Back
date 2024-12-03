@@ -12,16 +12,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuctionEventPublisher {
     private final WebPubSubServiceClient webPubSubClient;
+    private final ObjectMapper objectMapper;
 
 
 
     public AuctionEventPublisher(@Value("${webpubsub.connection-string}") String connectionString) {
-        // Construir el cliente del servicio WebPubSub
         this.webPubSubClient = new WebPubSubServiceClientBuilder()
                 .connectionString(connectionString)
                 .hub("puko")
                 .buildClient();
+        this.objectMapper = new ObjectMapper();
     }
+
+    public AuctionEventPublisher() {
+        this.webPubSubClient = null;
+        this.objectMapper = new ObjectMapper();
+    }
+    public AuctionEventPublisher(WebPubSubServiceClient webPubSubClient, ObjectMapper objectMapper) {
+        this.webPubSubClient = webPubSubClient;
+        this.objectMapper = objectMapper;
+    }
+
 
     public void publishAuctionEvent(Long auctionId, String eventType, Object eventData) {
         AuctionEvent event = new AuctionEvent(eventType, eventData);

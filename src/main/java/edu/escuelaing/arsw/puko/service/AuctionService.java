@@ -19,8 +19,8 @@ import java.util.*;
 @Service
 public class AuctionService {
 
-    private final String AUCTION_STARTED = "AUCTION_STARTED";
-    private final String AUCTION_FINALIZED = "AUCTION_FINALIZED";
+    private static final String AUCTION_STARTED = "AUCTION_STARTED";
+    private static final String AUCTION_FINALIZED = "AUCTION_FINALIZED";
 
 
     private AuctionRepository auctionRepository;
@@ -59,17 +59,16 @@ public class AuctionService {
 
     @Transactional
     public boolean placeBid(Long auctionId, User user, double amount) {
-        Optional<Auction> auctionOpt = findById(auctionId);
-        if (auctionOpt.isPresent()) {
+        try{
+            Optional<Auction> auctionOpt = Optional.of(auctionRepository.findAuctionForUpdate(auctionId).orElseThrow());
+
             Auction auction = auctionOpt.get();
             if (auction.getStatus() != Auction.AuctionStatus.ACTIVE) {
                 return false;
             }
-
             boolean bidPlaced = auction.placeBid(user, amount);
-
             if (bidPlaced) {
-
+                auctionRepository.save(auction);
                 auction.initializeBidRanking();
 
                 auctionRepository.save(auction);
@@ -78,10 +77,10 @@ public class AuctionService {
                 auctionEventPublisher.publishAuctionAvailableEvent("NEW_TOP_BID", new EventBidDTO(auction.getId(), amount));
                 auctionEventPublisher.publishAuctionEvent(auction.getId(), "RANKING_UPDATED", auction.getTopBids());
             }
-
             return bidPlaced;
+        }catch (Exception e){
+            return false;
         }
-        return false;
     }
 
     @Transactional(readOnly = true)

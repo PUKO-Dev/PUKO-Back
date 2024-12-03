@@ -45,7 +45,9 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable); // Deshabilitar CSRF
-
+        if (System.getProperty("spring.profiles.active") != null && System.getProperty("spring.profiles.active").equals("test")) {
+            http.authorizeRequests().anyRequest().permitAll(); // Permitir todas las solicitudes en pruebas
+        }
         return http.build();
     }
 
