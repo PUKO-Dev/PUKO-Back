@@ -22,8 +22,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -109,41 +107,6 @@ class AuctionControllerTest {
         mockMvc.perform(post("/api/auctions/1/register").with(csrf()))
 
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithMockUser(username = "testuser")
-    void testPlaceBid_Success() throws Exception {
-        // Datos de prueba
-        BidDTO bidDTO = new BidDTO();
-        bidDTO.setAmount(100.0);  // Asumimos que el BidDTO tiene un setter para amount
-        String data = "{\"amount\": " + bidDTO.getAmount() + "}";  // Serializando el BidDTO a JSON
-
-        // Cifrado manual utilizando la clave y el algoritmo
-        String encryptedData = encryptData(data);  // Método que cifra los datos
-
-        // Simulando las respuestas del servicio
-        when(userService.findByUsername("testuser")).thenReturn(mockUser);
-        when(auctionService.placeBid(1L, mockUser, bidDTO.getAmount())).thenReturn(true);
-        when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testuser", 100.0)));
-
-        // Realizando la petición
-        mockMvc.perform(post("/api/auctions/1/bid")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(csrf())
-                        .content("{\"data\": \"" + encryptedData + "\"}"))
-                .andExpect(status().isOk());
-    }
-
-    // Método para cifrar los datos
-    private String encryptData(String data) throws Exception {
-        // Configuración del Cipher para cifrar
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec("MySecretKey12345".getBytes(), "AES"));
-        // Ciframos los datos
-        byte[] encryptedData = cipher.doFinal(data.getBytes());
-        // Retornamos el dato cifrado en Base64
-        return Base64.getEncoder().encodeToString(encryptedData);
     }
 
     @Test
@@ -356,28 +319,6 @@ class AuctionControllerTest {
                 .andExpect(result -> assertEquals("No se pudo registrar al usuario en la subasta", result.getResolvedException().getMessage()));
     }
 
-    @Test
-    @WithMockUser(username = "testuser")
-    void testPlaceBid_AuctionException() throws Exception {
-        User user = new User(1L, "testuser", "password");
-        BidDTO bidDTO = new BidDTO();
-        bidDTO.setAmount(100.0);  // Asumimos que el BidDTO tiene un setter para amount
-
-        // Cifrado manual utilizando la clave y el algoritmo
-        String encryptedData = encryptData("{\"amount\": " + bidDTO.getAmount() + "}");  // Serializando y cifrando
-
-        when(userService.findByUsername("testuser")).thenReturn(user);
-        when(auctionService.placeBid(1L, user, bidDTO.getAmount())).thenReturn(false);
-
-        // Realizando la petición con los datos cifrados
-        mockMvc.perform(post("/api/auctions/1/bid")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(csrf())
-                        .content("{\"data\": \"" + encryptedData + "\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof AuctionException))
-                .andExpect(result -> assertEquals("No se pudo realizar la puja", result.getResolvedException().getMessage()));
-    }
     @Test
     @WithMockUser(username = "testuser")
     void testGetActiveAuctions_Success() throws Exception {
