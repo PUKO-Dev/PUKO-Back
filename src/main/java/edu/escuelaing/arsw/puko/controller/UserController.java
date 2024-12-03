@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -55,7 +56,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<User> getUserByUsername(@AuthenticationPrincipal UserDetails userDetails) {
         try {
-            User user = userService.getUserByUsername(userDetails.getUsername());
+            User user = userService.getUserByEmail(userDetails.getUsername());
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

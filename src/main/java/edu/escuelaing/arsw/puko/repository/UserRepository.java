@@ -8,4 +8,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // You can define custom queries here if needed
     @Query("SELECT u FROM User u WHERE u.username = :username")
     User findByUsername(String username);
+
+    User findByEmail(String email);
 }
