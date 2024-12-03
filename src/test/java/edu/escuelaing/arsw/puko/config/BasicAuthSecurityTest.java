@@ -1,19 +1,15 @@
 package edu.escuelaing.arsw.puko.config;
+
 import edu.escuelaing.arsw.puko.service.CustomUserDetailsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 
 import static org.mockito.Mockito.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class BasicAuthSecurityTest {
 
@@ -24,35 +20,38 @@ class BasicAuthSecurityTest {
     private CustomUserDetailsService userDetailsService;
 
     @Mock
-    private AuthenticationManagerBuilder authBuilder;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private HttpSecurity httpSecurity;  // Mocking HttpSecurity
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @InjectMocks
-    private BasicAuthSecurity basicAuthSecurity;
+    private SecurityConfig securityConfig;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-
-
     @Test
     void testHttpMethodOptionsIsPermitted() throws Exception {
-        // Simulamos el HttpSecurity para el método OPTIONS
+        // Crear un mock del HttpSecurity
+        HttpSecurity httpSecurity = mock(HttpSecurity.class);
+
+        // Configurar devoluciones válidas para los métodos encadenados
         when(httpSecurity.securityMatcher(any(String[].class))).thenReturn(httpSecurity);
         when(httpSecurity.authorizeHttpRequests(any())).thenReturn(httpSecurity);
-        when(httpSecurity.httpBasic(any())).thenReturn(httpSecurity);
+        when(httpSecurity.exceptionHandling(any())).thenReturn(httpSecurity);
+        when(httpSecurity.oauth2Login(any())).thenReturn(httpSecurity);
         when(httpSecurity.csrf(any())).thenReturn(httpSecurity);
+        when(httpSecurity.addFilterBefore(any(), any())).thenReturn(httpSecurity);
 
-        basicAuthSecurity.filterChain(httpSecurity);
+        // Llamar al método que configura el HttpSecurity
+        securityConfig.filterChain(httpSecurity);
 
-        // Verificamos que el método OPTIONS esté permitido
+        // Verificar que el método authorizeHttpRequests se llama y permite OPTIONS
         verify(httpSecurity).authorizeHttpRequests(any());
+        verify(httpSecurity).csrf(any());
+        verify(httpSecurity).oauth2Login(any());
     }
 }

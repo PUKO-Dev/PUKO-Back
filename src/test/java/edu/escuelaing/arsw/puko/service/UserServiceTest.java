@@ -1,8 +1,5 @@
 package edu.escuelaing.arsw.puko.service;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
 import edu.escuelaing.arsw.puko.exception.UserNotFoundException;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.repository.UserRepository;
@@ -16,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserServiceTest {
 

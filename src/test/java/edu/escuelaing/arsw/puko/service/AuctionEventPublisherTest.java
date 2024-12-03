@@ -4,16 +4,13 @@ import com.azure.messaging.webpubsub.WebPubSubServiceClient;
 import com.azure.messaging.webpubsub.models.WebPubSubContentType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.escuelaing.arsw.puko.exception.EventPublisherException;
 import edu.escuelaing.arsw.puko.model.AuctionEvent;
-import edu.escuelaing.arsw.puko.service.AuctionEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class AuctionEventPublisherTest {

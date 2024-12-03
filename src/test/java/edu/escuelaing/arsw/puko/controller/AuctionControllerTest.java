@@ -1,7 +1,8 @@
 package edu.escuelaing.arsw.puko.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.escuelaing.arsw.puko.dto.*;
+import edu.escuelaing.arsw.puko.dto.AuctionCreateDTO;
+import edu.escuelaing.arsw.puko.dto.BidDTO;
 import edu.escuelaing.arsw.puko.exception.AuctionException;
 import edu.escuelaing.arsw.puko.exception.UserNotFoundException;
 import edu.escuelaing.arsw.puko.model.Article;
@@ -29,13 +30,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuctionController.class)
 class AuctionControllerTest {
