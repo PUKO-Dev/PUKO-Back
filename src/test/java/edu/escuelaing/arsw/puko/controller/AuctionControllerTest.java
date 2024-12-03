@@ -22,6 +22,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -96,6 +98,32 @@ class AuctionControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.creatorId").value(mockUser.getId()))
                 .andExpect(jsonPath("$.articleId").value(mockArticle.getId()));
+    }
+    @Test
+    @WithMockUser(username = "testuser")
+    void testPlaceBid_Success() throws Exception {
+        // Datos de prueba
+        BidDTO bidDTO = new BidDTO();
+        bidDTO.setAmount(100.0);  // Asumimos que el BidDTO tiene un setter para amount
+
+        // Serializando el BidDTO a JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        String data = objectMapper.writeValueAsString(bidDTO);
+
+        // Cifrado manual utilizando la clave y el algoritmo
+        String encryptedData = encryptData(data);  // Método que cifra los datos
+
+        // Simulando las respuestas del servicio
+        when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        when(auctionService.placeBid(1L, mockUser, bidDTO.getAmount())).thenReturn(true);
+        when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testuser", 100.0)));
+
+        // Realizando la petición
+        mockMvc.perform(post("/api/auctions/1/bid")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                        .content("{\"data\":\"" + encryptedData + "\"}"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -339,5 +367,44 @@ class AuctionControllerTest {
                 .andExpect(jsonPath("$[0].duration").value(7200000))  // Comprobar que la duración es 2 horas
                 .andExpect(jsonPath("$[0].startTime").exists())  // Comprobar que la fecha de inicio está presente
                 .andExpect(jsonPath("$[0].startTime").value(Matchers.notNullValue()));  // Comprobar que la fecha de inicio no es nula
+    }
+    @Test
+    @WithMockUser(username = "testuser")
+    void testPlaceBid_AuctionException() throws Exception {
+        // Crear usuario y DTO de puja
+        User user = new User(1L, "testuser", "password");
+        BidDTO bidDTO = new BidDTO();
+        bidDTO.setAmount(100.0);  // Asumimos que el BidDTO tiene un setter para amount
+
+        // Serializar el BidDTO a JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        String data = objectMapper.writeValueAsString(bidDTO);
+
+        // Cifrado de los datos (simulación)
+        String encryptedData = encryptData(data);  // Método que cifra los datos
+
+        // Simulando la respuesta del servicio
+        when(userService.findByUsername("testuser")).thenReturn(user);
+        when(auctionService.placeBid(1L, user, bidDTO.getAmount())).thenReturn(false);
+
+        // Realizando la petición con los datos cifrados
+        mockMvc.perform(post("/api/auctions/1/bid")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                        .content("{\"data\":\"" + encryptedData + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    assertTrue(result.getResolvedException() instanceof AuctionException);
+                    assertEquals("No se pudo realizar la puja", result.getResolvedException().getMessage());
+                });
+    }
+    private String encryptData(String data) throws Exception {
+        // Configuración del Cipher para cifrar
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec("MySecretKey12345".getBytes(), "AES"));
+        // Ciframos los datos
+        byte[] encryptedData = cipher.doFinal(data.getBytes());
+        // Retornamos el dato cifrado en Base64
+        return Base64.getEncoder().encodeToString(encryptedData);
     }
 }
