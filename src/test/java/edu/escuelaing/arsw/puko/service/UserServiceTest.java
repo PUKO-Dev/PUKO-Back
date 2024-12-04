@@ -81,13 +81,13 @@ class UserServiceTest {
         String username = "testUser";
         User user = new User(username, "password", "test@example.com");
 
-        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(userRepository.findByEmail(username)).thenReturn(user);
 
-        User result = userService.getUserByUsername(username);
+        User result = userService.findByEmail(username);
 
         assertNotNull(result);
         assertEquals(username, result.getUsername());
-        verify(userRepository, times(1)).findByUsername(username);
+        verify(userRepository, times(1)).findByEmail(username);
     }
     @Test
     void getAllUsers_ShouldReturnListOfUsers() {

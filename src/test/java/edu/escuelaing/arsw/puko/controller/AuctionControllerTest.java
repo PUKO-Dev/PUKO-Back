@@ -74,7 +74,7 @@ class AuctionControllerTest {
         when(mockAuction.getStartTime()).thenReturn(LocalDateTime.now().plusMinutes(30));
 
         // Configurar mocks para servicios
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(articleService.findById(1L)).thenReturn(mockArticle);
         when(auctionService.save(any(Auction.class))).thenReturn(mockAuction);
 
@@ -123,7 +123,7 @@ class AuctionControllerTest {
         when(mockUser.getUsername()).thenReturn("testUser");
 
         // Configurar mocks
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(auctionService.registerUserForAuction(1L, mockUser)).thenReturn(true);
 
         // Llamar al método y verificar
@@ -140,7 +140,7 @@ class AuctionControllerTest {
 
         // Configurar mocks
         when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testUser", 200.0)));
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
 
         // Llamar al método y verificar
         ResponseEntity<List<BidRankingDTO>> response = auctionController.getTopBids(1L);
@@ -161,7 +161,7 @@ class AuctionControllerTest {
 
         UserDetails userDetails6 = mock(UserDetails.class);
         when(userDetails6.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
         when(auctionService.startAuction(auctionId)).thenReturn(true);
 
@@ -183,7 +183,7 @@ class AuctionControllerTest {
         mockAuction.setId(auctionId);
         UserDetails userDetails5 = mock(UserDetails.class);
         when(userDetails5.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
         try{
             auctionController.startAuction(auctionId, userDetails5);
@@ -203,7 +203,7 @@ class AuctionControllerTest {
 
         UserDetails userDetails4 = mock(UserDetails.class);
         when(userDetails4.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(auctionService.findById(auctionId)).thenReturn(Optional.of(mockAuction));
 
         ResponseEntity<Void> response = auctionController.finalizeAuction(auctionId, userDetails4);
@@ -221,7 +221,7 @@ class AuctionControllerTest {
 
         UserDetails userDetails2 = mock(UserDetails.class);
         when(userDetails2.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(auctionService.findByCreator(mockUser)).thenReturn(List.of(mockAuction));
 
         ResponseEntity<List<AuctionDTO>> response = auctionController.getUserAuctions(userDetails2);
@@ -242,7 +242,7 @@ class AuctionControllerTest {
 
         UserDetails userDetails3 = mock(UserDetails.class);
         when(userDetails3.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(mockUser);
+        when(userService.findByEmail("testUser")).thenReturn(mockUser);
         when(auctionService.findByRegisteredUser(mockUser)).thenReturn(List.of(mockAuction));
 
         ResponseEntity<List<AuctionDTO>> response = auctionController.getRegisteredAuctions(userDetails3);
