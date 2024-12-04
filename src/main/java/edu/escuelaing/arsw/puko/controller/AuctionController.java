@@ -46,7 +46,7 @@ public class AuctionController {
     public ResponseEntity<AuctionDTO> createAuction(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody AuctionCreateDTO auctionDTO) {
-        User creator = userService.findByUsername(userDetails.getUsername());
+        User creator = userService.findByEmail(userDetails.getUsername());
 
         if (creator == null) {
             throw new UserNotFoundException(userDetails.getUsername());
@@ -83,7 +83,7 @@ public class AuctionController {
     public ResponseEntity<Void> registerForAuction(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long auctionId) {
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
 
         boolean registered = auctionService.registerUserForAuction(auctionId, user);
 
@@ -107,7 +107,7 @@ public class AuctionController {
         }
 
         BidDTO bidDTO = parseBidDTO(decryptedData);
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
         boolean bidPlaced = auctionService.placeBid(auctionId, user, bidDTO.getAmount());
 
         if (!bidPlaced) {
@@ -130,7 +130,7 @@ public class AuctionController {
 
         List<BidRankingDTO> rankingDTOs = topBids.stream()
                 .map(entry -> {
-                    User user = userService.findByUsername(entry.getKey());
+                    User user = userService.findByEmail(entry.getKey());
                     if (user != null) {
                         return new BidRankingDTO(
                                 user.getId(),
@@ -177,7 +177,7 @@ public class AuctionController {
     @GetMapping("/user")
     public ResponseEntity<List<AuctionDTO>> getUserAuctions(
             @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
 
         // Obtener las subastas del usuario
         List<Auction> userAuctions = auctionService.findByCreator(user);
@@ -194,7 +194,7 @@ public class AuctionController {
     @GetMapping("/registered")
     public ResponseEntity<List<AuctionDTO>> getRegisteredAuctions(
             @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
 
         // Obtener las subastas en las que el usuario está registrado
         List<Auction> registeredAuctions = auctionService.findByRegisteredUser(user);
@@ -212,7 +212,7 @@ public class AuctionController {
     public ResponseEntity<Void> startAuction(
             @PathVariable Long auctionId,
             @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
         if (user == null) {
             throw new UserNotFoundException("Usuario no encontrado para:" + userDetails.getUsername()); // Usuario no encontrado
         }
@@ -242,7 +242,7 @@ public class AuctionController {
             @PathVariable Long auctionId,
             @AuthenticationPrincipal UserDetails userDetails) throws AuctionException {
         auctionService.finalizeAuction(auctionId);
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
 
         if (user == null) {
             throw new UserNotFoundException("Usuario no encontrado para:" + userDetails.getUsername()); // Usuario no encontrado

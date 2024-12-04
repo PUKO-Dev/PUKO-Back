@@ -52,7 +52,7 @@ class ArticleControllerTest {
         User user = new User();
         user.setUsername("testUser");
         when(userDetails.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(user);
+        when(userService.findByEmail("testUser")).thenReturn(user);
 
         Article createdArticle = new Article();
         createdArticle.setName(name);
@@ -64,19 +64,19 @@ class ArticleControllerTest {
         // Verify results
         assertEquals(201, response.getStatusCodeValue());
         assertEquals(createdArticle, response.getBody());
-        verify(userService, times(1)).findByUsername("testUser");
+        verify(userService, times(1)).findByEmail("testUser");
         verify(articleService, times(1)).createArticle(name, images, mainImageFilename, user, initialPrice);
     }
     @Test
     void testCreateArticle_UnauthorizedUser() {
         when(userDetails.getUsername()).thenReturn("testUser");
-        when(userService.findByUsername("testUser")).thenReturn(null);
+        when(userService.findByEmail("testUser")).thenReturn(null);
 
         ResponseEntity<Article> response = articleController.createArticle("Test Article", new ArrayList<>(), "mainImage.jpg", 100.0, userDetails);
 
         assertEquals(401, response.getStatusCodeValue());
         assertNull(response.getBody());
-        verify(userService, times(1)).findByUsername("testUser");
+        verify(userService, times(1)).findByEmail("testUser");
         verify(articleService, never()).createArticle(anyString(), anyList(), anyString(), any(User.class), anyDouble());
     }
 

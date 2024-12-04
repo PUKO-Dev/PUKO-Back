@@ -44,7 +44,7 @@ public class ArticleController {
         if (images == null) {
             images = new ArrayList<>();
         }
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = userService.findByEmail(userDetails.getUsername());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
