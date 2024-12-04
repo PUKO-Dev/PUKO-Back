@@ -47,7 +47,7 @@ class ArticleControllerTest {
         mockUser.setId(1L);
 
         // Simulamos que el servicio encuentra al usuario
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        Mockito.when(userService.findByEmail("testuser")).thenReturn(mockUser);
 
         // Simulamos la creación del artículo
         Article mockArticle = new Article();
@@ -74,7 +74,7 @@ class ArticleControllerTest {
     @WithMockUser(username = "testuser")
     void testCreateArticle_Unauthorized() throws Exception {
         // Simulamos que el servicio no encuentra el usuario
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(null);
+        Mockito.when(userService.findByEmail("testuser")).thenReturn(null);
 
         mockMvc.perform(multipart("/api/articles")
                         .param("name", "Test Article")
@@ -92,7 +92,7 @@ class ArticleControllerTest {
         mockUser.setId(1L);
 
         // Simulamos que el servicio lanza una excepción
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        Mockito.when(userService.findByEmail("testuser")).thenReturn(mockUser);
         Mockito.when(articleService.createArticle(
                 Mockito.anyString(),
                 Mockito.anyList(),
@@ -205,7 +205,7 @@ class ArticleControllerTest {
         mockArticle.setId(1L);
 
         // Simulamos que el servicio encuentra al usuario
-        Mockito.when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        Mockito.when(userService.findByEmail("testuser")).thenReturn(mockUser);
 
         // Simulamos la creación del artículo sin imágenes
         Mockito.when(articleService.createArticle(

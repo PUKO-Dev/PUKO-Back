@@ -84,7 +84,7 @@ class AuctionControllerTest {
         auctionCreateDTO.setStartTime(mockAuction.getStartTime());
         auctionCreateDTO.setDuration(mockAuction.getDuration());
 
-        when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        when(userService.findByEmail("testuser")).thenReturn(mockUser);
         when(articleService.findById(1L)).thenReturn(mockArticle);
         when(auctionService.save(Mockito.any(Auction.class))).thenReturn(mockAuction);
 
@@ -106,7 +106,7 @@ class AuctionControllerTest {
     @Test
     @WithMockUser(username = "testuser")
     void testRegisterForAuction_Success() throws Exception {
-        when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        when(userService.findByEmail("testuser")).thenReturn(mockUser);
         when(auctionService.registerUserForAuction(1L, mockUser)).thenReturn(true);
 
         mockMvc.perform(post("/api/auctions/1/register").with(csrf()))
@@ -117,7 +117,7 @@ class AuctionControllerTest {
     @Test
     @WithMockUser(username = "testuser")
     void testPlaceBid_Success() throws Exception {
-        when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        when(userService.findByEmail("testuser")).thenReturn(mockUser);
         when(auctionService.placeBid(1L, mockUser, 100.0)).thenReturn(true);
         when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testuser", 100.0)));
 
@@ -134,7 +134,7 @@ class AuctionControllerTest {
     @WithMockUser(username = "testuser")
     void testGetTopBids_Success() throws Exception {
         when(auctionService.getTopBids(1L)).thenReturn(List.of(Map.entry("testuser", 100.0)));
-        when(userService.findByUsername("testuser")).thenReturn(mockUser);
+        when(userService.findByEmail("testuser")).thenReturn(mockUser);
 
         mockMvc.perform(get("/api/auctions/1/top-bids").with(csrf()))
                 .andExpect(status().isOk())
@@ -159,7 +159,7 @@ class AuctionControllerTest {
     void testStartAuction_Success() throws Exception {
         User mockUserInStartAuction = new User(1L, "testuser", "testuserpass");
         Auction mockAuctionInStartAuction = new Auction(1L, mockUserInStartAuction);
-        when(userService.findByUsername("testuser")).thenReturn(mockUserInStartAuction);
+        when(userService.findByEmail("testuser")).thenReturn(mockUserInStartAuction);
         when(auctionService.findById(1L)).thenReturn(Optional.of(mockAuctionInStartAuction));
         when(auctionService.startAuction(1L)).thenReturn(true);
 
@@ -171,7 +171,7 @@ class AuctionControllerTest {
     @Test
     @WithMockUser(username = "unknownuser")
     void testStartAuction_UserNotFound() throws Exception {
-        when(userService.findByUsername("unknownuser")).thenReturn(null);
+        when(userService.findByEmail("unknownuser")).thenReturn(null);
 
         mockMvc.perform(post("/api/auctions/1/start").with(csrf()))
                 .andExpect(status().isNotFound());
@@ -183,7 +183,7 @@ class AuctionControllerTest {
     void testFinalizeAuction_Success() throws Exception {
         User mockUserInFinalice = new User(1L, "testuser", "testuserpass");
         Auction mockAuctionInFinalice = new Auction(1L, mockUserInFinalice);
-        when(userService.findByUsername("testuser")).thenReturn(mockUserInFinalice);
+        when(userService.findByEmail("testuser")).thenReturn(mockUserInFinalice);
         when(auctionService.findById(1L)).thenReturn(Optional.of(mockAuctionInFinalice));
 
         mockMvc.perform(post("/api/auctions/1/finalize").with(csrf()))
@@ -249,7 +249,7 @@ class AuctionControllerTest {
         User mockUserGetAuctionsSuccess = new User(1L, "testuser", "password");
         Auction mockAuctionGetAuctionsSuccess = new Auction(1L, mockUserGetAuctionsSuccess, new Article(), Duration.ofHours(2), LocalDateTime.now());
         mockAuctionGetAuctionsSuccess.setStatus(Auction.AuctionStatus.ACTIVE);
-        when(userService.findByUsername("testuser")).thenReturn(mockUserGetAuctionsSuccess);
+        when(userService.findByEmail("testuser")).thenReturn(mockUserGetAuctionsSuccess);
         when(auctionService.findByCreator(mockUserGetAuctionsSuccess)).thenReturn(List.of(mockAuctionGetAuctionsSuccess));
 
         mockMvc.perform(get("/api/auctions/user"))
@@ -263,7 +263,7 @@ class AuctionControllerTest {
         User mockUserRegisteredAuction = new User(1L, "testuser", "password");
         Auction mockAuctionRegisteredAuction = new Auction(2L, mockUserRegisteredAuction, new Article(), Duration.ofHours(3), LocalDateTime.now());
         mockAuctionRegisteredAuction.setStatus(Auction.AuctionStatus.ACTIVE);
-        when(userService.findByUsername("testuser")).thenReturn(mockUserRegisteredAuction);
+        when(userService.findByEmail("testuser")).thenReturn(mockUserRegisteredAuction);
         when(auctionService.findByRegisteredUser(mockUserRegisteredAuction)).thenReturn(List.of(mockAuctionRegisteredAuction));
 
         mockMvc.perform(get("/api/auctions/registered"))
@@ -295,7 +295,7 @@ class AuctionControllerTest {
     @Test
     @WithMockUser(username = "nonexistentuser")
     void testCreateAuction_UserNotFoundException() throws Exception {
-        when(userService.findByUsername("nonexistentuser")).thenReturn(null);
+        when(userService.findByEmail("nonexistentuser")).thenReturn(null);
 
         AuctionCreateDTO auctionDTO = new AuctionCreateDTO();
 
@@ -312,7 +312,7 @@ class AuctionControllerTest {
         User creator = new User(1L, "testuser", "password");
         Article article = new Article( "Test Article", new User(2L, "anotheruser", "password"), 52);
 
-        when(userService.findByUsername("testuser")).thenReturn(creator);
+        when(userService.findByEmail("testuser")).thenReturn(creator);
         when(articleService.findById(1L)).thenReturn(article);
 
         AuctionCreateDTO auctionDTO = new AuctionCreateDTO(1L);
@@ -331,7 +331,7 @@ class AuctionControllerTest {
     void testRegisterForAuction_AuctionException() throws Exception {
         User user = new User(1L, "testuser", "password");
 
-        when(userService.findByUsername("testuser")).thenReturn(user);
+        when(userService.findByEmail("testuser")).thenReturn(user);
         when(auctionService.registerUserForAuction(1L, user)).thenReturn(false);
 
         mockMvc.perform(post("/api/auctions/1/register").with(csrf()))
@@ -345,7 +345,7 @@ class AuctionControllerTest {
         User user = new User(1L, "testuser", "password");
         BidDTO bidDTO = new BidDTO();
 
-        when(userService.findByUsername("testuser")).thenReturn(user);
+        when(userService.findByEmail("testuser")).thenReturn(user);
         when(auctionService.placeBid(1L, user, 100.0)).thenReturn(false);
 
         mockMvc.perform(post("/api/auctions/1/bid")
