@@ -38,6 +38,7 @@ jobs:
           SECRET-KEY: ${{ secrets.SECRET_KEY }}
           ALGORITHM_DECRYPT: ${{ secrets.ALGORITHM_DECRYPT }}
           SECRET-DECRYP-KEY: ${{ secrets.SECRET_DECRYP_KEY }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
         run: |
           mvn clean test install

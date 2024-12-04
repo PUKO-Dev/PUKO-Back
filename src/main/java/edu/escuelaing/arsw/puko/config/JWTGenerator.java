@@ -2,6 +2,7 @@ package edu.escuelaing.arsw.puko.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,15 @@ import java.util.Date;
 @Component
 public class JWTGenerator {
 
-    private static final byte[] jwtSecret = KeyGenerator.generateSecureKey();
+    private final byte[] jwtSecret;
+
 
     public static final long JWT_EXPIRATION = 1000 * 60 * 60;
+
+
+    public JWTGenerator(@Value("${jwt.secret.key}") String jwtSecret) {
+        this.jwtSecret = jwtSecret.getBytes();
+    }
 
     public String generateToken(OAuth2User user) {
         String username = user.getAttribute("email");
@@ -85,15 +92,6 @@ public class JWTGenerator {
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtSecret);  // Converts the byte array to a SecretKey for HMAC
-    }
-
-    private static class KeyGenerator {
-        public static byte[] generateSecureKey() {
-            SecureRandom secureRandom = new SecureRandom();
-            byte[] key = new byte[32]; // 32 bytes = 256 bits
-            secureRandom.nextBytes(key);
-            return key;
-        }
     }
 
 
