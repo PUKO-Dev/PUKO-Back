@@ -69,13 +69,14 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", authProvider=" + authProvider +
-                ", realMoney=" + realMoney +
-                ", temporaryMoney=" + temporaryMoney +
-                '}';
+        return "{" +
+                "\"id\":" + id +
+                ", \"username\":\"" + username + "\"" +
+                ", \"email\":\"" + email + "\"" +
+                ", \"authProvider\":\"" + authProvider + "\"" +
+                ", \"realMoney\":" + realMoney +
+                ", \"temporaryMoney\":" + temporaryMoney +
+                "}";
     }
+
 }

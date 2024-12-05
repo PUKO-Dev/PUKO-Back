@@ -32,6 +32,18 @@ public class AuctionDTO {
                         .toList()
         );
     }
+    @Override
+    public String toString() {
+        return "{" +
+                "\"id\":" + id + "," +
+                "\"articleId\":" + articleId + "," +
+                "\"creatorId\":" + creatorId + "," +
+                "\"duration\":" + duration + "," +
+                "\"startTime\":\"" + startTime + "\"," +
+                "\"status\":\"" + status + "\"," +
+                "\"bidRanking\":" + bidRanking +
+                "}";
+    }
     @Getter
     @Setter
     @AllArgsConstructor

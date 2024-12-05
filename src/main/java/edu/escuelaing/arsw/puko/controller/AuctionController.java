@@ -153,10 +153,10 @@ public class AuctionController {
     }
 
     @GetMapping("/{auctionId}")
-    public ResponseEntity<AuctionDTO> getAuction(@PathVariable Long auctionId) {
+    public ResponseEntity<String> getAuction(@PathVariable Long auctionId) {
         Optional<Auction> auction = auctionService.findById(auctionId);
         if (auction.isPresent()) {
-            return ResponseEntity.ok(AuctionDTO.fromAuction(auction.get()));
+            return ResponseEntity.ok(Encryption.encrypt(AuctionDTO.fromAuction(auction.get()).toString()));
         }
         throw new AuctionNotFoundException(auctionId);
     }
@@ -263,7 +263,7 @@ public class AuctionController {
 
 
     @GetMapping("/available")
-    public ResponseEntity<List<AuctionDTO>> getAvailableAuctions() {
+    public ResponseEntity<String> getAvailableAuctions() {
         // Obtener las subastas disponibles
         List<Auction> availableAuctions = auctionService.findAvailableAuctions();
 
@@ -271,8 +271,7 @@ public class AuctionController {
         List<AuctionDTO> auctionDTOs = availableAuctions.stream()
                 .map(AuctionDTO::fromAuction)
                 .toList();
-
-        return ResponseEntity.ok(auctionDTOs);
+        return ResponseEntity.ok(Encryption.encrypt(auctionDTOs.toString()));
     }
 
     @GetMapping("/{auctionId}/registered-users")
@@ -304,5 +303,4 @@ public class AuctionController {
             throw new AuctionException("Error al procesar los datos de la puja");
         }
     }
-
 }

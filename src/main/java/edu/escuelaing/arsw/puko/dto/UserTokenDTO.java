@@ -17,5 +17,14 @@ public class UserTokenDTO {
     public static UserTokenDTO fromUser(User user, String token) {
         return new UserTokenDTO(user.getId(), user.getUsername(), token, user.getAuthProvider());
     }
+    @Override
+    public String toString() {
+        return "{" +
+                "\"id\":" + id +
+                ", \"username\":\"" + username + "\"" +
+                ", \"token\":\"" + token + "\"" +
+                ", \"authProvider\":\"" + authProvider + "\"" +
+                "}";
+    }
 }
 
