@@ -1,6 +1,5 @@
 package edu.escuelaing.arsw.puko.controller;
 
-import edu.escuelaing.arsw.puko.controller.UserController;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -8,17 +7,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Mock
     private UserService userService;
@@ -27,7 +26,7 @@ public class UserControllerTest {
     private UserController userController;
 
     @Test
-    public void testCreateUserSuccess() {
+    void testCreateUserSuccess() {
         // Mock de datos de entrada y resultado esperado
         String username = "testUser";
         String password = "password123";
@@ -41,13 +40,14 @@ public class UserControllerTest {
         ResponseEntity<User> response = userController.createUser(username, password, email);
 
         // Validaciones
-        assertEquals(201, response.getStatusCodeValue());
+        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
+
         assertNotNull(response.getBody());
         assertEquals(mockUser.getId(), response.getBody().getId());
     }
 
     @Test
-    public void testGetUserByIdSuccess() {
+    void testGetUserByIdSuccess() {
         // Mock de datos de entrada y resultado esperado
         Long userId = 1L;
         User mockUser = new User( "testUser", "test@example.com", "password123");
@@ -58,13 +58,14 @@ public class UserControllerTest {
         ResponseEntity<User> response = userController.getUserById(userId);
 
         // Validaciones
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
         assertNotNull(response.getBody());
         assertEquals(mockUser.getId(), response.getBody().getId());
     }
 
     @Test
-    public void testGetUserByIdNotFound() {
+    void testGetUserByIdNotFound() {
         // Mock para simular que el usuario no existe
         Long userId = 1L;
         when(userService.getUserById(userId)).thenThrow(new RuntimeException("User not found"));
@@ -73,11 +74,11 @@ public class UserControllerTest {
         ResponseEntity<User> response = userController.getUserById(userId);
 
         // Validaciones
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
     }
 
     @Test
-    public void testGetAllUsersSuccess() {
+    void testGetAllUsersSuccess() {
         // Mock de lista de usuarios
         User mockUser1 = new User( "user1", "user1@example.com", "password1");
         User mockUser2 = new User( "user2", "user2@example.com", "password2");
@@ -88,13 +89,14 @@ public class UserControllerTest {
         ResponseEntity<List<User>> response = userController.getAllUsers();
 
         // Validaciones
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
     }
 
     @Test
-    public void testDeleteUserSuccess() {
+    void testDeleteUserSuccess() {
         // Mock de ID del usuario
         Long userId = 1L;
 
@@ -104,12 +106,13 @@ public class UserControllerTest {
         ResponseEntity<Void> response = userController.deleteUser(userId);
 
         // Validaciones
-        assertEquals(204, response.getStatusCodeValue());
+        assertEquals(204, response.getStatusCode().value());
+
         verify(userService, times(1)).deleteUser(userId);
     }
 
     @Test
-    public void testGetUserByUsernameSuccess() {
+    void testGetUserByUsernameSuccess() {
         // Mock de UserDetails y User
         UserDetails userDetails = mock(UserDetails.class);
         when(userDetails.getUsername()).thenReturn("test@example.com");
@@ -119,16 +122,16 @@ public class UserControllerTest {
         when(userService.getUserByEmail("test@example.com")).thenReturn(mockUser);
 
         // Ejecutar la prueba
-        ResponseEntity<User> response = userController.getUserByUsername(userDetails);
+        ResponseEntity<String> response = userController.getUserByUsername(userDetails);
 
         // Validaciones
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
         assertNotNull(response.getBody());
-        assertEquals(mockUser.getId(), response.getBody().getId());
     }
 
     @Test
-    public void testGetUserByUsernameNotFound() {
+    void testGetUserByUsernameNotFound() {
         // Mock de UserDetails y servicio
         UserDetails userDetails = mock(UserDetails.class);
         when(userDetails.getUsername()).thenReturn("nonexistent@example.com");
@@ -136,9 +139,10 @@ public class UserControllerTest {
         when(userService.getUserByEmail("nonexistent@example.com")).thenThrow(new RuntimeException("User not found"));
 
         // Ejecutar la prueba
-        ResponseEntity<User> response = userController.getUserByUsername(userDetails);
+        ResponseEntity<String> response = userController.getUserByUsername(userDetails);
 
         // Validaciones
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+
     }
 }

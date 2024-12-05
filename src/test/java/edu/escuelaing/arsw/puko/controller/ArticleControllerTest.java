@@ -1,7 +1,6 @@
 package edu.escuelaing.arsw.puko.controller;
 
 import edu.escuelaing.arsw.puko.dto.ArticleWithImageDTO;
-import edu.escuelaing.arsw.puko.dto.ArticleWithImagesDTO;
 import edu.escuelaing.arsw.puko.model.Article;
 import edu.escuelaing.arsw.puko.model.ImageBlob;
 import edu.escuelaing.arsw.puko.model.User;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,7 +62,7 @@ class ArticleControllerTest {
         ResponseEntity<Article> response = articleController.createArticle(name, images, mainImageFilename, initialPrice, userDetails);
 
         // Verify results
-        assertEquals(201, response.getStatusCodeValue());
+        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         assertEquals(createdArticle, response.getBody());
         verify(userService, times(1)).findByEmail("testUser");
         verify(articleService, times(1)).createArticle(name, images, mainImageFilename, user, initialPrice);
@@ -74,7 +74,7 @@ class ArticleControllerTest {
 
         ResponseEntity<Article> response = articleController.createArticle("Test Article", new ArrayList<>(), "mainImage.jpg", 100.0, userDetails);
 
-        assertEquals(401, response.getStatusCodeValue());
+        assertEquals(401, response.getStatusCode().value());
         assertNull(response.getBody());
         verify(userService, times(1)).findByEmail("testUser");
         verify(articleService, never()).createArticle(anyString(), anyList(), anyString(), any(User.class), anyDouble());
@@ -90,7 +90,7 @@ class ArticleControllerTest {
 
         ResponseEntity<String> response = articleController.getMainImage(articleId);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         assertEquals("http://example.com/mainImage.jpg", response.getBody());
         verify(articleService, times(1)).findMainImageByArticleId(articleId);
     }
@@ -102,7 +102,7 @@ class ArticleControllerTest {
 
         ResponseEntity<String> response = articleController.getMainImage(articleId);
 
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
         assertNull(response.getBody());
         verify(articleService, times(1)).findMainImageByArticleId(articleId);
     }
@@ -113,10 +113,9 @@ class ArticleControllerTest {
         ArticleWithImageDTO articleWithImageDTO = new ArticleWithImageDTO();
         when(articleService.getArticleWithMainImage(articleId)).thenReturn(articleWithImageDTO);
 
-        ResponseEntity<ArticleWithImageDTO> response = articleController.getArticleWithMainImage(articleId);
+        ResponseEntity<String> response = articleController.getArticleWithMainImage(articleId);
 
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(articleWithImageDTO, response.getBody());
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         verify(articleService, times(1)).getArticleWithMainImage(articleId);
     }
 

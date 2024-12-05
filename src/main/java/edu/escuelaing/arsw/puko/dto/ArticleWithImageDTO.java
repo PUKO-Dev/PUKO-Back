@@ -17,6 +17,18 @@ public class ArticleWithImageDTO {
     private Long userId;
     private String mainImage; // Imagen en formato Base64
     private double initialPrice;
+
+    @Override
+    public String toString() {
+        return "{" +
+                "\"id\":" + id +
+                ", \"name\":\"" + name + "\"" +
+                ", \"userId\":" + userId +
+                ", \"mainImage\":\"" + (mainImage != null ? mainImage : "") + "\"" +
+                ", \"initialPrice\":" + initialPrice +
+                "}";
+    }
+
 }
 
 

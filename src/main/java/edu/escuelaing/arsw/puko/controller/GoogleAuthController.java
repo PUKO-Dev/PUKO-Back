@@ -1,5 +1,6 @@
 package edu.escuelaing.arsw.puko.controller;
 
+import edu.escuelaing.arsw.puko.config.Encryption;
 import edu.escuelaing.arsw.puko.dto.UserTokenDTO;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.service.GoogleAuthService;
@@ -24,21 +25,18 @@ public class GoogleAuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<?> authenticateWithGoogle(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<String> authenticateWithGoogle(@RequestBody Map<String, String> payload) {
         try {
             String idToken = payload.get("id_token");
             if (idToken == null || idToken.isEmpty()) {
-                System.out.println("Token ID no válido");
                 return ResponseEntity.badRequest().body("Token ID no válido");
             }
 
             Map<String, Object> data = googleAuthService.authenticateWithGoogle(idToken);
-            return ResponseEntity.ok(UserTokenDTO.fromUser((User) data.get("user"), (String) data.get("token")));
+            return ResponseEntity.ok(Encryption.encrypt(UserTokenDTO.fromUser((User) data.get("user"), (String) data.get("token")).toString()));
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResponseEntity.status(500).body("Error interno del servidor");
         }
     }

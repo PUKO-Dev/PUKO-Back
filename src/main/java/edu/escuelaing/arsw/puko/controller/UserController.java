@@ -1,5 +1,6 @@
 package edu.escuelaing.arsw.puko.controller;
 
+import edu.escuelaing.arsw.puko.config.Encryption;
 import edu.escuelaing.arsw.puko.model.User;
 import edu.escuelaing.arsw.puko.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +54,10 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> getUserByUsername(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> getUserByUsername(@AuthenticationPrincipal UserDetails userDetails) {
         try {
             User user = userService.getUserByEmail(userDetails.getUsername());
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(Encryption.encrypt(user.toString()));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

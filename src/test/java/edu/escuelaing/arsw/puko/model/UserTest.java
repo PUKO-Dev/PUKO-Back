@@ -124,14 +124,15 @@ class UserTest {
         user.setAuthProvider(authProvider);
 
         // Obtener el resultado del método toString
-        String expected = "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", authProvider=" + authProvider +
-                ", realMoney=" + realMoney +
-                ", temporaryMoney=" + temporaryMoney +
-                '}';
+        String expected = "{" +
+                "\"id\":" + id +
+                ", \"username\":\"" + username + "\"" +
+                ", \"email\":\"" + email + "\"" +
+                ", \"authProvider\":\"" + authProvider + "\"" +
+                ", \"realMoney\":" + realMoney +
+                ", \"temporaryMoney\":" + temporaryMoney +
+                "}";
+
 
         // Verificar que el toString es correcto
         assertEquals(expected, user.toString(), "El toString() no devuelve el formato esperado.");

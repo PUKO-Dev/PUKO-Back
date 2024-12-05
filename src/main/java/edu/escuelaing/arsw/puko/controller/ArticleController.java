@@ -1,5 +1,6 @@
 package edu.escuelaing.arsw.puko.controller;
 
+import edu.escuelaing.arsw.puko.config.Encryption;
 import edu.escuelaing.arsw.puko.dto.ArticleWithImageDTO;
 import edu.escuelaing.arsw.puko.dto.ArticleWithImagesDTO;
 import edu.escuelaing.arsw.puko.model.Article;
@@ -81,11 +82,11 @@ public class ArticleController {
 
 
     @GetMapping("/{articleId}/with-image")
-    public ResponseEntity<ArticleWithImageDTO> getArticleWithMainImage(
+    public ResponseEntity<String> getArticleWithMainImage(
             @PathVariable Long articleId) {
         try {
             ArticleWithImageDTO articleWithImage = articleService.getArticleWithMainImage(articleId);
-            return ResponseEntity.ok(articleWithImage);
+            return ResponseEntity.ok(Encryption.encrypt(articleWithImage.toString()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
